@@ -1,12 +1,24 @@
 import pygame
-import sys, os
+import sys
+import os
 import time
+
 FPS = 50
 
 size = WIDTH, HEIGHT = 1280, 720
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Сборник игр: главное меню")
 clock = pygame.time.Clock()
+
+
+def music():
+    global music_on
+    if sound_off in music_on:
+        pygame.mixer.music.play()
+        music_on = sound_on, (30, 620)
+    else:
+        pygame.mixer.music.stop()
+        music_on = sound_off, (30, 620)
 
 
 def print_text(message, x, y, font_size=30):
@@ -19,11 +31,11 @@ def print_text(message, x, y, font_size=30):
 
 
 class Button:
-    def __init__(self, width, height):
+    def __init__(self, width, height, inactive_clr=(13, 162, 58), active_clr=(23, 204, 58)):
         self.width = width
         self.height = height
-        self.inactive_clr = (13, 162, 58)
-        self.active_clr = (23, 204, 58)
+        self.inactive_clr = inactive_clr
+        self.active_clr = active_clr
 
     def draw(self, x, y, message, action=None, font_size=50):
         mouse = pygame.mouse.get_pos()
@@ -33,7 +45,7 @@ class Button:
             pygame.draw.rect(screen, self.active_clr, (x, y, self.width, self.height))
 
             if click[0] == 1:
-                # pygame.mixer.Sound.play(button_sound)
+                pygame.mixer.Sound.play(btn_sound)
                 pygame.time.delay(50)
                 if action:
                     action()
@@ -87,6 +99,7 @@ def start_screen():
     start_flappy_bird = Button(300, 70)
     start_flappy_sapper = Button(170, 70)
     quit_button = Button(200, 70)
+    music_button = Button(100, 100, active_clr=(255, 0, 0))
 
     while True:
         for event in pygame.event.get():
@@ -96,6 +109,8 @@ def start_screen():
         start_flappy_bird.draw(300, 200, "Flappy bird", font_size=70)
         start_flappy_sapper.draw(700, 200, "Сапер", font_size=70)
         quit_button.draw(500, 500, "Выход", action=terminate, font_size=70)
+        music_button.draw(10, 600, "", action=music, font_size=70)
+        screen.blit(*music_on)
         pygame.display.flip()
         clock.tick(60)
         clock.tick(FPS)
@@ -104,6 +119,14 @@ def start_screen():
 if __name__ == '__main__':
 
     pygame.init()
+    btn_sound = pygame.mixer.Sound('data/sound_btn_1.mp3')
+    pygame.mixer.music.load('data/8bit-background_main.mp3')
+    pygame.mixer.music.set_volume(0.2)
+    pygame.mixer.music.play(-1)
+    sound_on = load_image("data/unmute.png")
+    sound_off = load_image("data/mute.png")
+    music_on = (sound_on, (30, 620))
+
     screen = pygame.display.set_mode(size)
     pygame.display.flip()
     start_screen()
