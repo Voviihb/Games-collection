@@ -30,7 +30,7 @@ def flappy_bird():
     base = pygame.transform.scale(load_image('data/flappy_bird/base.png', pygame), (1024, 70))
     floor_x_pos = 0
 
-    to_maim_menu = Button(300, 70, screen, pygame)
+    to_main_menu = Button(300, 70, screen, pygame)
 
     while True:
         for event in pygame.event.get():
@@ -39,7 +39,7 @@ def flappy_bird():
                 sys.exit()
         pygame.display.update()
         screen.blit(background, (0, 0))
-        if to_maim_menu.draw(100, 100, "", font_size=70, cmd="close"):
+        if to_main_menu.draw(100, 100, "", font_size=70, cmd="close"):
             break
         floor_x_pos = draw_floor(floor_x_pos, screen, base)  # перемещение пола
 

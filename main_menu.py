@@ -2,6 +2,7 @@ import pygame
 import sys
 from scripts import load_image, Button
 import flappy_bird
+import minesweeper
 
 FPS = 50
 
@@ -47,7 +48,7 @@ def start_screen():
 
     # Кнопки
     start_flappy_bird = Button(300, 70, screen, pygame)
-    start_flappy_sapper = Button(170, 70, screen, pygame)
+    start_sapper = Button(170, 70, screen, pygame)
     quit_button = Button(200, 70, screen, pygame)
     music_button = Button(100, 100, screen, pygame, active_clr=(255, 0, 0))
 
@@ -57,7 +58,7 @@ def start_screen():
                 terminate()
         screen.blit(background, (0, 0))
         start_flappy_bird.draw(300, 200, "Flappy bird", action=flappy_bird.flappy_bird, font_size=70)
-        start_flappy_sapper.draw(700, 200, "Сапер", font_size=70)
+        start_sapper.draw(700, 200, "Сапер", action=minesweeper.minesweeper, font_size=70)
         quit_button.draw(500, 500, "Выход", action=terminate, font_size=70)
         music_button.draw(10, 600, "", action=music, font_size=70)
         screen.blit(*music_on)
