@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 import time
+from scripts import load_image
 
 FPS = 50
 
@@ -54,23 +55,6 @@ class Button:
         print_text(message=message, x=x + 10, y=y + 10, font_size=font_size)
 
 
-def load_image(name, colorkey=None):
-    fullname = name
-    # если файл не существует, то выходим
-    if not os.path.isfile(fullname):
-        print(f"Файл с изображением '{fullname}' не найден")
-        sys.exit()
-    image = pygame.image.load(fullname)
-    if colorkey is not None:
-        image = image.convert()
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey)
-    else:
-        image = image.convert_alpha()
-    return image
-
-
 def terminate():
     pygame.quit()
     sys.exit()
@@ -82,8 +66,8 @@ def start_screen():
                   "Сапер,",
                   "Морской бой"]
     # Фон и постоянный текст
-    fon = pygame.transform.scale(load_image('data/menu_image.jpg'), (WIDTH, HEIGHT))
-    screen.blit(fon, (0, 0))
+    background = pygame.transform.scale(load_image('data/menu_image.jpg'), (WIDTH, HEIGHT))
+    screen.blit(background, (0, 0))
     font = pygame.font.Font(None, 50)
     text_coord = 30
     for line in intro_text:
