@@ -89,7 +89,8 @@ class Minesweeper(Board):
 
     def get_click(self, mouse_pos):
         cell = self.get_cell(mouse_pos)
-        self.open_cell(cell)
+        if cell:
+            self.open_cell(cell)
 
     def open_cell(self, cell):
         x, y = cell[0], cell[1]
