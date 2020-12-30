@@ -1,5 +1,15 @@
 import pygame
 from random import randrange
+from scripts import load_image
+
+
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, tile_type, pos_x, pos_y, tile_size):
+        super().__init__(tiles_group, all_sprites)
+        self.image = pygame.transform.scale(tile_images[tile_type], (tile_size, tile_size))
+        self.rect = self.image.get_rect()
+        self.rect.x = pos_x
+        self.rect.y = pos_y
 
 
 class Board:
@@ -73,12 +83,19 @@ class Minesweeper(Board):
             cur_x = self.left
             for j in range(self.width):
                 if self.board[i][j] == 10:
-                    pygame.draw.rect(place, (255, 0, 0), (cur_x, cur_y, self.cell_size - 1, self.cell_size - 1))
+                    Tile("empty", cur_x, cur_y, self.cell_size)
+                    Tile("bomb", cur_x, cur_y, self.cell_size)
+                    # pygame.draw.rect(place, (255, 0, 0), (cur_x, cur_y, self.cell_size - 1, self.cell_size - 1))
                 elif self.board[i][j] in (0, 1, 2, 3, 4, 5, 6, 7, 8):
-                    f1 = pygame.font.Font(None, self.cell_size - 6)
-                    text1 = f1.render(str(self.board[i][j]), True, (0, 255, 0))
-                    place.blit(text1, (cur_x, cur_y))
-                pygame.draw.rect(place, (255, 255, 255), (cur_x, cur_y, self.cell_size, self.cell_size), 1)
+                    # f1 = pygame.font.Font(None, self.cell_size - 6)
+                    # text1 = f1.render(str(self.board[i][j]), True, (0, 255, 0))
+                    # place.blit(text1, (cur_x + self.cell_size // 3, cur_y + self.cell_size // 3))
+                    Tile(str(self.board[i][j]), cur_x, cur_y, self.cell_size)
+                else:
+                    Tile("empty", cur_x, cur_y, self.cell_size)
+                    # pygame.draw.rect(place, (255, 255, 255), (cur_x, cur_y, self.cell_size, self.cell_size), 1)
+                pygame.draw.rect(place, (0, 0, 0),
+                                 (self.left, self.top, self.size_x - self.left, self.size_y - self.top), 3)
                 cur_x += self.cell_size
             cur_y += self.cell_size
 
@@ -95,6 +112,10 @@ class Minesweeper(Board):
     def open_cell(self, cell):
         x, y = cell[0], cell[1]
         counter = 0
+
+        if self.board[y][x] == 10:
+            print("YOU LOST")
+
         if self.board[y][x] == -1:
             for y_edge in range(-1, 2):
                 for x_edge in range(-1, 2):
@@ -114,8 +135,6 @@ class Minesweeper(Board):
 
                     if self.board[y + y_edge][x + x_edge] == -1:
                         self.open_cell((x + x_edge, y + y_edge))
-
-
 
         # coords = (self.cell_size * x + self.left, self.cell_size * y + self.top)
         # self.draw(coords, counter)
@@ -141,22 +160,46 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode(size)
     screen.fill((0, 0, 0))
     pygame.display.flip()
+    tile_images = {
+        '0': load_image('data/minesweeper/0.png'),
+        '1': load_image('data/minesweeper/1.png'),
+        '2': load_image('data/minesweeper/2.png'),
+        '3': load_image('data/minesweeper/3.png'),
+        '4': load_image('data/minesweeper/4.png'),
+        '5': load_image('data/minesweeper/5.png'),
+        '6': load_image('data/minesweeper/6.png'),
+        '7': load_image('data/minesweeper/7.png'),
+        '8': load_image('data/minesweeper/8.png'),
+        'bomb': load_image('data/minesweeper/bomb.png'),
+        'empty': load_image('data/minesweeper/facingDown.png')
+    }
     running = True
     flag = False
     r = 10
     v = 10  # пикселей в секунду
     clock = pygame.time.Clock()
-
-    board = Minesweeper(10, 15, 10)
+    all_sprites = pygame.sprite.Group()
+    tiles_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
+    board = Minesweeper(16, 16, 40)
     board.set_view(10, 10, 35)
     running = True
     while running:
+        all_sprites.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                board.get_click(event.pos)
-        screen.fill((0, 0, 0))
+                if event.button == 1:
+                    board.get_click(event.pos)
+                elif event.button == 2:
+                    print("middle mouse button")
+                elif event.button == 3:
+                    print("right mouse button")
+
+        screen.fill((187, 187, 187))
+        all_sprites.draw(screen)
+        player_group.draw(screen)
         board.render(screen)
         pygame.display.flip()
 
