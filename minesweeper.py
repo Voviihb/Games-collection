@@ -47,7 +47,7 @@ class Board:
 
 
 class Minesweeper(Board):
-    def __init__(self, width=800, height=600, mines_count=10):
+    def __init__(self, width=800, height=600, mines_count=5):
         self.width = width
         self.height = height
         self.mines_count = mines_count
@@ -73,13 +73,12 @@ class Minesweeper(Board):
             cur_x = self.left
             for j in range(self.width):
                 if self.board[i][j] == 10:
-                    pygame.draw.rect(place, (255, 0, 0), (cur_x, cur_y, self.cell_size, self.cell_size))
+                    pygame.draw.rect(place, (255, 0, 0), (cur_x, cur_y, self.cell_size - 1, self.cell_size - 1))
                 elif self.board[i][j] in (0, 1, 2, 3, 4, 5, 6, 7, 8):
-                    f1 = pygame.font.Font(None, 36)
+                    f1 = pygame.font.Font(None, self.cell_size - 6)
                     text1 = f1.render(str(self.board[i][j]), True, (0, 255, 0))
                     place.blit(text1, (cur_x, cur_y))
-                else:
-                    pygame.draw.rect(place, (255, 255, 255), (cur_x, cur_y, self.cell_size, self.cell_size), 1)
+                pygame.draw.rect(place, (255, 255, 255), (cur_x, cur_y, self.cell_size, self.cell_size), 1)
                 cur_x += self.cell_size
             cur_y += self.cell_size
 
@@ -97,98 +96,27 @@ class Minesweeper(Board):
         x, y = cell[0], cell[1]
         counter = 0
         if self.board[y][x] == -1:
-            if 1 <= x <= self.width - 2 and 1 <= y <= self.height - 2:
-                if self.is_mine(x - 1, y + 1):
-                    counter += 1
-                if self.is_mine(x - 1, y):
-                    counter += 1
-                if self.is_mine(x - 1, y - 1):
-                    counter += 1
-                if self.is_mine(x, y + 1):
-                    counter += 1
-                if self.is_mine(x, y - 1):
-                    counter += 1
-                if self.is_mine(x + 1, y + 1):
-                    counter += 1
-                if self.is_mine(x + 1, y):
-                    counter += 1
-                if self.is_mine(x + 1, y - 1):
-                    counter += 1
+            for y_edge in range(-1, 2):
+                for x_edge in range(-1, 2):
+                    if x + x_edge < 0 or x + x_edge >= self.width or y + y_edge < 0 or y + y_edge >= self.height:
+                        continue
 
-            elif x == 0 and 1 <= y <= self.height - 2:
-                if self.is_mine(x, y + 1):
-                    counter += 1
-                if self.is_mine(x, y - 1):
-                    counter += 1
-                if self.is_mine(x + 1, y + 1):
-                    counter += 1
-                if self.is_mine(x + 1, y):
-                    counter += 1
-                if self.is_mine(x + 1, y - 1):
-                    counter += 1
+                    if self.board[y + y_edge][x + x_edge] == 10:
+                        counter += 1
 
-            elif x == self.width - 1 and 1 <= y <= self.height - 2:
-                if self.is_mine(x - 1, y + 1):
-                    counter += 1
-                if self.is_mine(x - 1, y):
-                    counter += 1
-                if self.is_mine(x - 1, y - 1):
-                    counter += 1
-                if self.is_mine(x, y + 1):
-                    counter += 1
-                if self.is_mine(x, y - 1):
-                    counter += 1
-            elif y == 0 and 1 <= x <= self.width - 2:
-                if self.is_mine(x - 1, y):
-                    counter += 1
-                if self.is_mine(x - 1, y + 1):
-                    counter += 1
-                if self.is_mine(x, y + 1):
-                    counter += 1
-                if self.is_mine(x + 1, y):
-                    counter += 1
-                if self.is_mine(x + 1, y + 1):
-                    counter += 1
-            elif y == self.height - 1 and 1 <= x <= self.width - 2:
-                if self.is_mine(x - 1, y - 1):
-                    counter += 1
-                if self.is_mine(x - 1, y):
-                    counter += 1
-                if self.is_mine(x, y - 1):
-                    counter += 1
-                if self.is_mine(x + 1, y - 1):
-                    counter += 1
-                if self.is_mine(x + 1, y):
-                    counter += 1
-            elif x == 0 and y == 0:
-                if self.is_mine(x, y + 1):
-                    counter += 1
-                if self.is_mine(x + 1, y + 1):
-                    counter += 1
-                if self.is_mine(x + 1, y):
-                    counter += 1
-            elif x == 0 and y == self.height - 1:
-                if self.is_mine(x, y - 1):
-                    counter += 1
-                if self.is_mine(x + 1, y - 1):
-                    counter += 1
-                if self.is_mine(x + 1, y):
-                    counter += 1
-            elif x == self.width - 1 and y == 0:
-                if self.is_mine(x - 1, y):
-                    counter += 1
-                if self.is_mine(x - 1, y + 1):
-                    counter += 1
-                if self.is_mine(x, y + 1):
-                    counter += 1
-            elif x == self.width - 1 and self.height - 1:
-                if self.is_mine(x - 1, y - 1):
-                    counter += 1
-                if self.is_mine(x - 1, y):
-                    counter += 1
-                if self.is_mine(x, y - 1):
-                    counter += 1
             self.board[y][x] = counter
+
+        if self.board[y][x] == 0:
+            for y_edge in range(-1, 2):
+                for x_edge in range(-1, 2):
+                    if x + x_edge < 0 or x + x_edge >= self.width or y + y_edge < 0 or y + y_edge >= self.height:
+                        continue
+
+                    if self.board[y + y_edge][x + x_edge] == -1:
+                        self.open_cell((x + x_edge, y + y_edge))
+
+
+
         # coords = (self.cell_size * x + self.left, self.cell_size * y + self.top)
         # self.draw(coords, counter)
 
