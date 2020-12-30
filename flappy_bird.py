@@ -1,6 +1,7 @@
 import pygame
 import sys
 from scripts import load_image, Button
+import random
 
 clock = pygame.time.Clock()
 
@@ -15,9 +16,28 @@ def draw_floor(floor_pos, screen, base):
 
 
 FPS = 60
+WIDTH, HEIGHT = 1024, 768
 
 bird_sprite = pygame.sprite.Group()
 floor_sprite = pygame.sprite.Group()
+pipe_sprites = pygame.sprite.Group()
+
+
+class Pipe(pygame.sprite.Sprite):
+    def __init__(self, radius=30, x=1000, y=300, place="bottom"):
+        super().__init__(pipe_sprites)
+
+        if place == "bottom":
+            self.image = pygame.Surface([50, y])
+            self.rect = pygame.Rect(x, HEIGHT - y, 50, y)
+        if place == "top":
+            self.image = pygame.Surface([50, HEIGHT - y - 200])
+            self.rect = pygame.Rect(x, 0, 50, HEIGHT - y - 200)
+
+    def update(self):
+        self.rect = self.rect.move(-10, 0)
+        if self.rect[0] < 0:
+            self.kill()
 
 
 class Border(pygame.sprite.Sprite):
@@ -49,14 +69,12 @@ class Bird(pygame.sprite.Sprite):
         self.rect = self.rect.move(0, self.vy)
         if args:
             self.rect = self.rect.move(0, -30)
-        if pygame.sprite.spritecollideany(self, floor_sprite):
+        if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
             print("Game over")
             sys.exit()
 
 
 def flappy_bird():
-    WIDTH, HEIGHT = 1024, 768
-
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Сборник игр: Flappy bird")
     background = pygame.transform.scale(load_image('data/flappy_bird/background.png', pygame), (WIDTH, HEIGHT))
@@ -69,7 +87,9 @@ def flappy_bird():
     Border(WIDTH - 5, 5, WIDTH - 5, HEIGHT - 5)
 
     to_main_menu = Button(300, 70, screen, pygame)
+    SPAWNPIPE = pygame.USEREVENT
 
+    pygame.time.set_timer(SPAWNPIPE, 1200)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -77,6 +97,11 @@ def flappy_bird():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 bird_sprite.update(event)
+            if event.type == SPAWNPIPE:
+                y = random.randint(100, 300)
+                Pipe(y=y, place="bottom")
+                Pipe(y=y, place="top")
+
         pygame.display.update()
         screen.blit(background, (0, 0))
 
@@ -85,6 +110,8 @@ def flappy_bird():
         floor_x_pos = draw_floor(floor_x_pos, screen, base)  # перемещение пола
         bird_sprite.update()
         bird_sprite.draw(screen)
+        pipe_sprites.update()
+        pipe_sprites.draw(screen)
 
         clock.tick(FPS)
 
