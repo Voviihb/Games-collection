@@ -33,7 +33,7 @@ class Board:
             cur_y += self.cell_size
 
     def get_cell(self, pos):
-        if self.left <= pos[0] <= self.size_x and self.top <= pos[1] <= self.size_y:
+        if self.left < pos[0] < self.size_x and self.top < pos[1] < self.size_y:
             num_x = (pos[0] - self.left) // self.cell_size
             num_y = (pos[1] - self.top) // self.cell_size
             id = (num_x, num_y)
@@ -47,7 +47,7 @@ class Board:
 
 
 class Minesweeper(Board):
-    def __init__(self, width, height, mines_count):
+    def __init__(self, width=800, height=600, mines_count=10):
         self.width = width
         self.height = height
         self.mines_count = mines_count
@@ -57,6 +57,7 @@ class Minesweeper(Board):
             y = randrange(self.height)
             if self.board[y][x] != 10:
                 self.board[y][x] = 10
+
         # print(self.board)
         # значения по умолчанию
         self.left = 10
