@@ -1,6 +1,6 @@
 import pygame
 import sys
-from scripts import load_image, Button
+from scripts import load_image, Button, print_text
 import random
 
 clock = pygame.time.Clock()
@@ -17,7 +17,7 @@ def draw_floor(floor_pos, screen, base):
 
 FPS = 60
 WIDTH, HEIGHT = 1024, 768
-
+IF_PLAYING = True
 bird_sprite = pygame.sprite.Group()
 floor_sprite = pygame.sprite.Group()
 pipe_sprites = pygame.sprite.Group()
@@ -63,12 +63,15 @@ class Bird(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, pygame.Color("red"),
                            (radius, radius), radius)
         self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
-        self.vy = 1
+        self.vy = 2
 
     def update(self, *args):
         self.rect = self.rect.move(0, self.vy)
         if args:
-            self.rect = self.rect.move(0, -30)
+            if args == "kill":
+                self.kill()
+            else:
+                self.rect = self.rect.move(0, -30)
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
             print("Game over")
             sys.exit()
@@ -87,9 +90,11 @@ def flappy_bird():
     Border(WIDTH - 5, 5, WIDTH - 5, HEIGHT - 5)
 
     to_main_menu = Button(300, 70, screen, pygame)
+    pause = Button(70, 70, screen, pygame)
     SPAWNPIPE = pygame.USEREVENT
-
+    counter = -1
     pygame.time.set_timer(SPAWNPIPE, 1200)
+    global IF_PLAYING
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -97,21 +102,32 @@ def flappy_bird():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 bird_sprite.update(event)
-            if event.type == SPAWNPIPE:
+            if event.type == SPAWNPIPE and IF_PLAYING:
                 y = random.randint(100, 300)
                 Pipe(y=y, place="bottom")
                 Pipe(y=y, place="top")
+                counter += 1
 
         pygame.display.update()
         screen.blit(background, (0, 0))
 
         if to_main_menu.draw(100, 100, "", font_size=70, cmd="close"):
+            bird_sprite.update("kill")
             break
-        floor_x_pos = draw_floor(floor_x_pos, screen, base)  # перемещение пола
-        bird_sprite.update()
+        if pause.draw(700, 100, "", font_size=70, cmd="pause"):
+            IF_PLAYING = not IF_PLAYING
+
         bird_sprite.draw(screen)
-        pipe_sprites.update()
         pipe_sprites.draw(screen)
+        if IF_PLAYING:
+            floor_x_pos = draw_floor(floor_x_pos, screen, base)  # перемещение пола
+            bird_sprite.update()
+            pipe_sprites.update()
+
+        if counter < 0:
+            print_text("0", 450, 50, screen=screen, pygame=pygame, font_size=100)
+        else:
+            print_text(str(counter), 450, 50, screen=screen, pygame=pygame, font_size=100)
 
         clock.tick(FPS)
 
