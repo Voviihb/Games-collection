@@ -1,4 +1,4 @@
-import pygame, time
+import pygame, time, sys
 from random import randrange
 from scripts import load_image, render_text
 
@@ -246,7 +246,8 @@ def minesweeper():
         # all_sprites.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if not board.lost:
                     if event.button == 1:
@@ -264,7 +265,6 @@ def minesweeper():
         pygame.display.flip()
         if board.lost:
             pass
-    pygame.quit()
 
 
 if __name__ == '__main__':
