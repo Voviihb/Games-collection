@@ -93,14 +93,23 @@ class Minesweeper(Board):
         all_sprites.update()
         self.place = place
         cur_y = self.top
-        e = int(time.time() - start_time)
+        if not self.lost:
+            e = int(time.time() - start_time)
 
-        render_text(self.place, self.size_x + 30, 50, f"Mines left: {self.mines_count - self.tagged_mines}", scale=30,
-                    colour=(0, 255, 0))
+            render_text(self.place, self.size_x + 30, 50, f"Mines left: {self.mines_count - self.tagged_mines}", scale=30,
+                        colour=(0, 255, 0))
 
-        render_text(self.place, self.size_x + 30, 100,
-                    f"Your time: {'{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)}", scale=30,
-                    colour=(0, 255, 0))
+            render_text(self.place, self.size_x + 30, 100,
+                        f"Your time: {'{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)}", scale=30,
+                        colour=(0, 255, 0))
+        else:
+            render_text(self.place, self.size_x + 30, 50, f"Mines left: {self.result_left_mines}",
+                        scale=30,
+                        colour=(0, 255, 0))
+
+            render_text(self.place, self.size_x + 30, 100,
+                        f"Your time: {self.total_time}", scale=30,
+                        colour=(0, 255, 0))
 
         for i in range(self.height):
             cur_x = self.left
@@ -155,6 +164,9 @@ class Minesweeper(Board):
 
         if self.board[y][x] == 10:
             self.lost = True
+            e = int(time.time() - start_time)
+            self.total_time = '{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)
+            self.result_left_mines = self.mines_count - self.tagged_mines
             print("YOU LOST")
 
         if self.board[y][x] == -1:
@@ -233,12 +245,13 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    board.get_click(event.pos)
-                elif event.button == 2:
-                    print("middle mouse button")
-                elif event.button == 3:
-                    board.mark_mine(event.pos)
+                if not board.lost:
+                    if event.button == 1:
+                        board.get_click(event.pos)
+                    elif event.button == 2:
+                        print("middle mouse button")
+                    elif event.button == 3:
+                        board.mark_mine(event.pos)
 
         screen.fill((187, 187, 187))
         # all_sprites.update()
