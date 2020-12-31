@@ -58,6 +58,7 @@ class Board:
 
 class Minesweeper(Board):
     def __init__(self, width=800, height=600, mines_count=5):
+        self.lost = False
         self.width = width
         self.height = height
         self.mines_count = mines_count
@@ -90,7 +91,7 @@ class Minesweeper(Board):
         for i in range(self.height):
             cur_x = self.left
             for j in range(self.width):
-                if self.board[i][j] == 10:
+                if self.board[i][j] == 10 and self.lost:
                     Tile("empty", cur_x, cur_y, self.cell_size)
                     Tile("bomb", cur_x, cur_y, self.cell_size)
                     # pygame.draw.rect(place, (255, 0, 0), (cur_x, cur_y, self.cell_size - 1, self.cell_size - 1))
@@ -99,6 +100,8 @@ class Minesweeper(Board):
                     # text1 = f1.render(str(self.board[i][j]), True, (0, 255, 0))
                     # place.blit(text1, (cur_x + self.cell_size // 3, cur_y + self.cell_size // 3))
                     Tile(str(self.board[i][j]), cur_x, cur_y, self.cell_size)
+                elif type(self.board[i][j]) == list:
+                    Tile("marked", cur_x, cur_y, self.cell_size)
                 else:
                     Tile("empty", cur_x, cur_y, self.cell_size)
                     # pygame.draw.rect(place, (255, 255, 255), (cur_x, cur_y, self.cell_size, self.cell_size), 1)
@@ -117,11 +120,22 @@ class Minesweeper(Board):
         if cell:
             self.open_cell(cell)
 
+    def mark_mine(self, mouse_pos):
+        cell = self.get_cell(mouse_pos)
+        if cell:
+            x, y = cell[0], cell[1]
+            if type(self.board[y][x]) != list:
+                self.board[y][x] = ["marked", self.board[y][x]]
+                print("Marked", cell)
+            else:
+                self.board[y][x] = self.board[y][x][1]
+
     def open_cell(self, cell):
         x, y = cell[0], cell[1]
         counter = 0
 
         if self.board[y][x] == 10:
+            self.lost = True
             print("YOU LOST")
 
         if self.board[y][x] == -1:
@@ -179,6 +193,7 @@ if __name__ == '__main__':
         '7': load_image('data/minesweeper/7.png'),
         '8': load_image('data/minesweeper/8.png'),
         'bomb': load_image('data/minesweeper/bomb.png'),
+        'marked': load_image('data/minesweeper/flagged.png'),
         'empty': load_image('data/minesweeper/facingDown.png')
     }
     running = True
@@ -203,12 +218,13 @@ if __name__ == '__main__':
                 elif event.button == 2:
                     print("middle mouse button")
                 elif event.button == 3:
-                    print("right mouse button")
+                    board.mark_mine(event.pos)
 
         screen.fill((187, 187, 187))
         all_sprites.draw(screen)
         player_group.draw(screen)
         board.render(screen)
         pygame.display.flip()
-
+        if board.lost:
+            pass
     pygame.quit()
