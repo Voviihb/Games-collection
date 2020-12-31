@@ -62,11 +62,19 @@ class Minesweeper(Board):
         self.height = height
         self.mines_count = mines_count
         self.board = [[-1] * width for _ in range(height)]
-        for i in range(mines_count):
+        # for i in range(mines_count):
+        #     x = randrange(self.width)
+        #     y = randrange(self.height)
+        #     if self.board[y][x] != 10:
+        #         self.board[y][x] = 10
+
+        i = 0
+        while i < self.mines_count:
             x = randrange(self.width)
             y = randrange(self.height)
             if self.board[y][x] != 10:
                 self.board[y][x] = 10
+                i += 1
 
         # print(self.board)
         # значения по умолчанию
