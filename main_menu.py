@@ -11,12 +11,16 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Сборник игр: главное меню")
 clock = pygame.time.Clock()
 
+sound_on = load_image("data/unmute.png", pygame)
+sound_off = load_image("data/mute.png", pygame)
+music_on = (sound_on, (30, 683))
+
 
 def music():
     global music_on
     if sound_off in music_on:
         pygame.mixer.music.play()
-        music_on = sound_on, (30, 682)
+        music_on = sound_on, (30, 683)
     else:
         pygame.mixer.music.stop()
         music_on = sound_off, (30, 682)
@@ -28,6 +32,8 @@ def terminate():
 
 
 def start_screen():
+    global music_on
+
     intro_text = ["СБОРНИК ИГР", "",
                   "Flappy bird,",
                   "Сапер,",
@@ -58,7 +64,11 @@ def start_screen():
                 terminate()
         screen.blit(background, (0, 0))
         start_flappy_bird.draw(300, 200, "Flappy bird", action=flappy_bird.flappy_bird, font_size=70)
-        start_sapper.draw(700, 200, "Сапер", action=minesweeper.minesweeper, font_size=70)
+        music_on_local = start_sapper.draw(700, 200, "Сапер", action=minesweeper.minesweeper, font_size=70, arg=music_on)
+        if music_on_local:
+            if music_on[1] != music_on_local[1]:
+                music()
+
         quit_button.draw(500, 500, "Выход", action=terminate, font_size=70)
         music_button.draw(10, 658, "", action=music, font_size=70)
         screen.blit(*music_on)
@@ -74,9 +84,6 @@ if __name__ == '__main__':
     pygame.mixer.music.load('data/8bit-background_main.mp3')
     pygame.mixer.music.set_volume(0.2)
     pygame.mixer.music.play(-1)
-    sound_on = load_image("data/unmute.png", pygame)
-    sound_off = load_image("data/mute.png", pygame)
-    music_on = (sound_on, (30, 682))
 
     screen = pygame.display.set_mode(size)
     pygame.display.flip()

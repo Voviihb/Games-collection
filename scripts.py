@@ -45,7 +45,7 @@ class Button:
         self.inactive_clr = inactive_clr
         self.active_clr = active_clr
 
-    def draw(self, x, y, message, action=None, font_size=50, cmd=None):
+    def draw(self, x, y, message, action=None, font_size=50, cmd=None, arg=None):
         mouse = self.pygame.mouse.get_pos()
         click = self.pygame.mouse.get_pressed()
 
@@ -56,7 +56,10 @@ class Button:
                 self.pygame.mixer.Sound.play(self.btn_sound)
                 self.pygame.time.delay(50)
                 if action:
-                    action()
+                    if arg:
+                        return action(arg)
+                    else:
+                        action()
                 if cmd:
                     return cmd
         else:

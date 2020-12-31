@@ -1,11 +1,26 @@
 import pygame, time, sys
 from random import randrange
-from scripts import load_image, render_text
+from scripts import load_image, render_text, to_main_menu_button, Button
+#from main_menu import music
+
+
+def music():
+    global music_on
+    if sound_off in music_on:
+        pygame.mixer.music.play()
+        music_on = sound_on, (30, 683)
+    else:
+        pygame.mixer.music.stop()
+        music_on = sound_off, (30, 682)
+
 
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
+
+sound_on = load_image("data/unmute.png", pygame)
+sound_off = load_image("data/mute.png", pygame)
 
 start_time = 0
 
@@ -228,16 +243,22 @@ class Minesweeper(Board):
     #     pygame.display.update()
 
 
-def minesweeper():
+def minesweeper(music_on_imported):
     screen = pygame.display.set_mode((1024, 768))
     screen.fill((0, 0, 0))
     pygame.display.flip()
-    global start_time
-    running = True
+    global start_time, music_on
+    music_on = sound_on, (30, 683)
+    if music_on_imported[1] != music_on[1]:
+        music()
     start_time = time.time()
     flag = False
     r = 10
     v = 10  # пикселей в секунду
+
+    close_button = load_image("data/close_button.png", pygame)
+    music_button = Button(100, 100, screen, pygame)
+    to_main_menu_local = to_main_menu_button(screen, pygame)
 
     board = Minesweeper(16, 16, 40)
     board.set_view(10, 10, 35)
@@ -262,6 +283,14 @@ def minesweeper():
         all_sprites.draw(screen)
         player_group.draw(screen)
         board.render(screen)
+
+        if to_main_menu_local.draw(890, 640, "", font_size=70, cmd="close"):
+            return music_on
+
+        screen.blit(close_button, (900, 650))
+        music_button.draw(10, 658, "", action=music, font_size=70)
+        screen.blit(*music_on)
+
         pygame.display.flip()
         if board.lost:
             pass
