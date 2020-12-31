@@ -2,6 +2,28 @@ import pygame, time
 from random import randrange
 from scripts import load_image, render_text
 
+clock = pygame.time.Clock()
+all_sprites = pygame.sprite.Group()
+tiles_group = pygame.sprite.Group()
+player_group = pygame.sprite.Group()
+
+start_time = 0
+
+tile_images = {
+    '0': load_image('data/minesweeper/0.png', pygame),
+    '1': load_image('data/minesweeper/1.png', pygame),
+    '2': load_image('data/minesweeper/2.png', pygame),
+    '3': load_image('data/minesweeper/3.png', pygame),
+    '4': load_image('data/minesweeper/4.png', pygame),
+    '5': load_image('data/minesweeper/5.png', pygame),
+    '6': load_image('data/minesweeper/6.png', pygame),
+    '7': load_image('data/minesweeper/7.png', pygame),
+    '8': load_image('data/minesweeper/8.png', pygame),
+    'bomb': load_image('data/minesweeper/bomb.png', pygame),
+    'marked': load_image('data/minesweeper/flagged.png', pygame),
+    'empty': load_image('data/minesweeper/facingDown.png', pygame)
+}
+
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y, tile_size):
@@ -96,18 +118,18 @@ class Minesweeper(Board):
         if not self.lost:
             e = int(time.time() - start_time)
 
-            render_text(self.place, self.size_x + 30, 50, f"Mines left: {self.mines_count - self.tagged_mines}", scale=30,
+            render_text(self.place, pygame, self.size_x + 30, 50, f"Mines left: {self.mines_count - self.tagged_mines}", scale=30,
                         colour=(0, 255, 0))
 
-            render_text(self.place, self.size_x + 30, 100,
+            render_text(self.place, pygame, self.size_x + 30, 100,
                         f"Your time: {'{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)}", scale=30,
                         colour=(0, 255, 0))
         else:
-            render_text(self.place, self.size_x + 30, 50, f"Mines left: {self.result_left_mines}",
+            render_text(self.place, pygame, self.size_x + 30, 50, f"Mines left: {self.result_left_mines}",
                         scale=30,
                         colour=(0, 255, 0))
 
-            render_text(self.place, self.size_x + 30, 100,
+            render_text(self.place,pygame, self.size_x + 30, 100,
                         f"Your time: {self.total_time}", scale=30,
                         colour=(0, 255, 0))
 
@@ -206,36 +228,17 @@ class Minesweeper(Board):
     #     pygame.display.update()
 
 
-if __name__ == '__main__':
-    pygame.init()
-    pygame.display.set_caption('Сапер demo 0.1')
-    size = width, height = 800, 600
-    screen = pygame.display.set_mode(size)
+def minesweeper():
+    screen = pygame.display.set_mode((1024, 768))
     screen.fill((0, 0, 0))
     pygame.display.flip()
-    tile_images = {
-        '0': load_image('data/minesweeper/0.png'),
-        '1': load_image('data/minesweeper/1.png'),
-        '2': load_image('data/minesweeper/2.png'),
-        '3': load_image('data/minesweeper/3.png'),
-        '4': load_image('data/minesweeper/4.png'),
-        '5': load_image('data/minesweeper/5.png'),
-        '6': load_image('data/minesweeper/6.png'),
-        '7': load_image('data/minesweeper/7.png'),
-        '8': load_image('data/minesweeper/8.png'),
-        'bomb': load_image('data/minesweeper/bomb.png'),
-        'marked': load_image('data/minesweeper/flagged.png'),
-        'empty': load_image('data/minesweeper/facingDown.png')
-    }
+    global start_time
     running = True
     start_time = time.time()
     flag = False
     r = 10
     v = 10  # пикселей в секунду
-    clock = pygame.time.Clock()
-    all_sprites = pygame.sprite.Group()
-    tiles_group = pygame.sprite.Group()
-    player_group = pygame.sprite.Group()
+
     board = Minesweeper(16, 16, 40)
     board.set_view(10, 10, 35)
     running = True
@@ -262,3 +265,10 @@ if __name__ == '__main__':
         if board.lost:
             pass
     pygame.quit()
+
+
+if __name__ == '__main__':
+    pygame.init()
+    pygame.display.set_caption('Сапер demo 0.1')
+    size = width, height = 800, 600
+
