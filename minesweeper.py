@@ -11,6 +11,9 @@ class Tile(pygame.sprite.Sprite):
         self.rect.x = pos_x
         self.rect.y = pos_y
 
+    def update(self):
+        self.kill()
+
 
 class Board:
     # создание поля
@@ -87,6 +90,7 @@ class Minesweeper(Board):
         self.size_y = self.height * self.cell_size + self.top
 
     def render(self, place):
+        all_sprites.update()
         self.place = place
         cur_y = self.top
         e = int(time.time() - start_time)
@@ -224,7 +228,7 @@ if __name__ == '__main__':
     board.set_view(10, 10, 35)
     running = True
     while running:
-        all_sprites.update()
+        # all_sprites.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -237,6 +241,7 @@ if __name__ == '__main__':
                     board.mark_mine(event.pos)
 
         screen.fill((187, 187, 187))
+        # all_sprites.update()
         all_sprites.draw(screen)
         player_group.draw(screen)
         board.render(screen)
