@@ -14,7 +14,8 @@ def load_image(name, pygame, colorkey=None):
             colorkey = image.get_at((0, 0))
         image.set_colorkey(colorkey)
     else:
-        image = image.convert_alpha()
+        if "png" not in fullname:
+            image = image.convert_alpha()
     return image
 
 
@@ -55,3 +56,11 @@ class Button:
         else:
             self.pygame.draw.rect(self.screen, self.inactive_clr, (x, y, self.width, self.height))
         print_text(message, x + 10, y + 10, self.screen, self.pygame, font_size=font_size)
+
+
+def to_main_menu_button(screen, pygame):
+    return Button(120, 120, screen, pygame, active_clr=(255, 0, 0))
+
+
+def pause_button_func(screen, pygame):
+    return Button(120, 120, screen, pygame, active_clr=(255, 0, 0))

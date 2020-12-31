@@ -1,9 +1,16 @@
 import pygame
 import sys
-from scripts import load_image, Button, print_text
+from scripts import load_image, Button, print_text, to_main_menu_button, pause_button_func
 import random
 
 clock = pygame.time.Clock()
+
+
+def pause_logo(IF_PLAYING, play_button, pause_button):
+    if IF_PLAYING:
+        return play_button, (135, 5)
+    else:
+        return pause_button, (135, 5)
 
 
 def draw_floor(floor_pos, screen, base):
@@ -66,22 +73,35 @@ class Bird(pygame.sprite.Sprite):
         self.vy = 2
 
     def update(self, *args):
-        self.rect = self.rect.move(0, self.vy)
+        if IF_PLAYING:
+            self.rect = self.rect.move(0, self.vy)
         if args:
             if args == "kill":
                 self.kill()
             else:
-                self.rect = self.rect.move(0, -30)
+                if IF_PLAYING:
+                    self.rect = self.rect.move(0, -50)
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
             print("Game over")
             sys.exit()
 
 
 def flappy_bird():
+    global bird_sprite, floor_sprite, pipe_sprites
+
+    close_button = load_image("data/close_button.png", pygame)
+    pause_button = load_image("data/pause_button.png", pygame)
+    play_button = load_image("data/play_button.png", pygame)
+
+    bird_sprite = pygame.sprite.Group()
+    floor_sprite = pygame.sprite.Group()
+    pipe_sprites = pygame.sprite.Group()
+
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Сборник игр: Flappy bird")
     background = pygame.transform.scale(load_image('data/flappy_bird/background.png', pygame), (WIDTH, HEIGHT))
     base = pygame.transform.scale(load_image('data/flappy_bird/base.png', pygame), (1024, 70))
+
     floor_x_pos = 0
     Bird()
     Border(5, 5, WIDTH - 5, 5)
@@ -89,8 +109,9 @@ def flappy_bird():
     Border(5, 5, 5, HEIGHT - 5)
     Border(WIDTH - 5, 5, WIDTH - 5, HEIGHT - 5)
 
-    to_main_menu = Button(300, 70, screen, pygame)
-    pause = Button(70, 70, screen, pygame)
+    to_main_menu_local = to_main_menu_button(screen, pygame)
+    pause_local = pause_button_func(screen, pygame)
+
     SPAWNPIPE = pygame.USEREVENT
     counter = -1
     pygame.time.set_timer(SPAWNPIPE, 1200)
@@ -110,15 +131,14 @@ def flappy_bird():
 
         pygame.display.update()
         screen.blit(background, (0, 0))
-
-        if to_main_menu.draw(100, 100, "", font_size=70, cmd="close"):
-            bird_sprite.update("kill")
-            break
-        if pause.draw(700, 100, "", font_size=70, cmd="pause"):
-            IF_PLAYING = not IF_PLAYING
-
         bird_sprite.draw(screen)
         pipe_sprites.draw(screen)
+        if to_main_menu_local.draw(10, 10, "", font_size=70, cmd="close"):
+            bird_sprite.update("kill")
+            return
+        if pause_local.draw(140, 10, "", font_size=70, cmd="pause"):
+            IF_PLAYING = not IF_PLAYING
+
         if IF_PLAYING:
             floor_x_pos = draw_floor(floor_x_pos, screen, base)  # перемещение пола
             bird_sprite.update()
@@ -128,6 +148,9 @@ def flappy_bird():
             print_text("0", 450, 50, screen=screen, pygame=pygame, font_size=100)
         else:
             print_text(str(counter), 450, 50, screen=screen, pygame=pygame, font_size=100)
+
+        screen.blit(close_button, (20, 20))
+        screen.blit(*pause_logo(IF_PLAYING, play_button, pause_button))
 
         clock.tick(FPS)
 
