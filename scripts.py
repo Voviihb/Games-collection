@@ -16,3 +16,9 @@ def load_image(name, colorkey=None):
     else:
         image = image.convert_alpha()
     return image
+
+
+def render_text(place, x, y, text, scale, colour):
+    f1 = pygame.font.Font(None, scale)
+    text1 = f1.render(text, True, colour)
+    place.blit(text1, (x, y))
