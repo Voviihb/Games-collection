@@ -1,6 +1,6 @@
-import pygame
+import pygame, time
 from random import randrange
-from scripts import load_image
+from scripts import load_image, render_text
 
 
 class Tile(pygame.sprite.Sprite):
@@ -57,11 +57,12 @@ class Board:
 
 
 class Minesweeper(Board):
-    def __init__(self, width=800, height=600, mines_count=5):
+    def __init__(self, width=10, height=10, mines_count=20):
         self.lost = False
         self.width = width
         self.height = height
         self.mines_count = mines_count
+        self.tagged_mines = 0
         self.board = [[-1] * width for _ in range(height)]
         # for i in range(mines_count):
         #     x = randrange(self.width)
@@ -88,6 +89,15 @@ class Minesweeper(Board):
     def render(self, place):
         self.place = place
         cur_y = self.top
+        e = int(time.time() - start_time)
+
+        render_text(self.place, self.size_x + 30, 50, f"Mines left: {self.mines_count - self.tagged_mines}", scale=30,
+                    colour=(0, 255, 0))
+
+        render_text(self.place, self.size_x + 30, 100,
+                    f"Your time: {'{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)}", scale=30,
+                    colour=(0, 255, 0))
+
         for i in range(self.height):
             cur_x = self.left
             for j in range(self.width):
@@ -95,6 +105,9 @@ class Minesweeper(Board):
                     Tile("empty", cur_x, cur_y, self.cell_size)
                     Tile("bomb", cur_x, cur_y, self.cell_size)
                     # pygame.draw.rect(place, (255, 0, 0), (cur_x, cur_y, self.cell_size - 1, self.cell_size - 1))
+                elif self.lost and type(self.board[i][j]) == list and self.board[i][j][1] == 10:
+                    Tile("marked", cur_x, cur_y, self.cell_size)
+                    Tile("bomb", cur_x, cur_y, self.cell_size)
                 elif self.board[i][j] in (0, 1, 2, 3, 4, 5, 6, 7, 8):
                     # f1 = pygame.font.Font(None, self.cell_size - 6)
                     # text1 = f1.render(str(self.board[i][j]), True, (0, 255, 0))
@@ -126,9 +139,11 @@ class Minesweeper(Board):
             x, y = cell[0], cell[1]
             if type(self.board[y][x]) != list:
                 self.board[y][x] = ["marked", self.board[y][x]]
+                self.tagged_mines += 1
                 print("Marked", cell)
             else:
                 self.board[y][x] = self.board[y][x][1]
+                self.tagged_mines -= 1
 
     def open_cell(self, cell):
         x, y = cell[0], cell[1]
@@ -197,6 +212,7 @@ if __name__ == '__main__':
         'empty': load_image('data/minesweeper/facingDown.png')
     }
     running = True
+    start_time = time.time()
     flag = False
     r = 10
     v = 10  # пикселей в секунду

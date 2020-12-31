@@ -18,7 +18,7 @@ def load_image(name, colorkey=None):
     return image
 
 
-def render_text(place, x, y, text, scale, colour):
+def render_text(place, x=10, y=10, text="sample", scale=30, colour=(0, 255, 0)):
     f1 = pygame.font.Font(None, scale)
     text1 = f1.render(text, True, colour)
     place.blit(text1, (x, y))
