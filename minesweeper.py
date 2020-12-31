@@ -271,4 +271,5 @@ if __name__ == '__main__':
     pygame.init()
     pygame.display.set_caption('Сапер demo 0.1')
     size = width, height = 800, 600
+    minesweeper()
 
