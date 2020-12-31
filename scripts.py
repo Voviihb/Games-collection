@@ -1,4 +1,4 @@
-import sys, os
+import pygame, sys, os
 
 
 def load_image(name, pygame, colorkey=None):
@@ -17,6 +17,12 @@ def load_image(name, pygame, colorkey=None):
         if "png" not in fullname:
             image = image.convert_alpha()
     return image
+
+
+def render_text(place, x=10, y=10, text="sample", scale=30, colour=(0, 255, 0)):
+    f1 = pygame.font.Font(None, scale)
+    text1 = f1.render(text, True, colour)
+    place.blit(text1, (x, y))
 
 
 def print_text(message, x, y, screen, pygame, font_size=30):

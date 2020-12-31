@@ -1,7 +1,18 @@
-import pygame
+import pygame, time
 from random import randrange
-import sys
-from scripts import Button
+from scripts import load_image, render_text
+
+
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, tile_type, pos_x, pos_y, tile_size):
+        super().__init__(tiles_group, all_sprites)
+        self.image = pygame.transform.scale(tile_images[tile_type], (tile_size, tile_size))
+        self.rect = self.image.get_rect()
+        self.rect.x = pos_x
+        self.rect.y = pos_y
+
+    def update(self):
+        self.kill()
 
 
 class Board:
@@ -35,7 +46,7 @@ class Board:
             cur_y += self.cell_size
 
     def get_cell(self, pos):
-        if self.left <= pos[0] <= self.size_x and self.top <= pos[1] <= self.size_y:
+        if self.left < pos[0] < self.size_x and self.top < pos[1] < self.size_y:
             num_x = (pos[0] - self.left) // self.cell_size
             num_y = (pos[1] - self.top) // self.cell_size
             id = (num_x, num_y)
@@ -49,16 +60,27 @@ class Board:
 
 
 class Minesweeper(Board):
-    def __init__(self, width, height, mines_count):
+    def __init__(self, width=10, height=10, mines_count=20):
+        self.lost = False
         self.width = width
         self.height = height
         self.mines_count = mines_count
+        self.tagged_mines = 0
         self.board = [[-1] * width for _ in range(height)]
-        for i in range(mines_count):
+        # for i in range(mines_count):
+        #     x = randrange(self.width)
+        #     y = randrange(self.height)
+        #     if self.board[y][x] != 10:
+        #         self.board[y][x] = 10
+
+        i = 0
+        while i < self.mines_count:
             x = randrange(self.width)
             y = randrange(self.height)
             if self.board[y][x] != 10:
                 self.board[y][x] = 10
+                i += 1
+
         # print(self.board)
         # значения по умолчанию
         self.left = 10
@@ -68,19 +90,49 @@ class Minesweeper(Board):
         self.size_y = self.height * self.cell_size + self.top
 
     def render(self, place):
+        all_sprites.update()
         self.place = place
         cur_y = self.top
+        if not self.lost:
+            e = int(time.time() - start_time)
+
+            render_text(self.place, self.size_x + 30, 50, f"Mines left: {self.mines_count - self.tagged_mines}", scale=30,
+                        colour=(0, 255, 0))
+
+            render_text(self.place, self.size_x + 30, 100,
+                        f"Your time: {'{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)}", scale=30,
+                        colour=(0, 255, 0))
+        else:
+            render_text(self.place, self.size_x + 30, 50, f"Mines left: {self.result_left_mines}",
+                        scale=30,
+                        colour=(0, 255, 0))
+
+            render_text(self.place, self.size_x + 30, 100,
+                        f"Your time: {self.total_time}", scale=30,
+                        colour=(0, 255, 0))
+
         for i in range(self.height):
             cur_x = self.left
             for j in range(self.width):
-                if self.board[i][j] == 10:
-                    pygame.draw.rect(place, (255, 0, 0), (cur_x, cur_y, self.cell_size, self.cell_size))
+                if self.board[i][j] == 10 and self.lost:
+                    Tile("empty", cur_x, cur_y, self.cell_size)
+                    Tile("bomb", cur_x, cur_y, self.cell_size)
+                    # pygame.draw.rect(place, (255, 0, 0), (cur_x, cur_y, self.cell_size - 1, self.cell_size - 1))
+                elif self.lost and type(self.board[i][j]) == list and self.board[i][j][1] == 10:
+                    Tile("marked", cur_x, cur_y, self.cell_size)
+                    Tile("bomb", cur_x, cur_y, self.cell_size)
                 elif self.board[i][j] in (0, 1, 2, 3, 4, 5, 6, 7, 8):
-                    f1 = pygame.font.Font(None, 36)
-                    text1 = f1.render(str(self.board[i][j]), True, (0, 255, 0))
-                    place.blit(text1, (cur_x, cur_y))
+                    # f1 = pygame.font.Font(None, self.cell_size - 6)
+                    # text1 = f1.render(str(self.board[i][j]), True, (0, 255, 0))
+                    # place.blit(text1, (cur_x + self.cell_size // 3, cur_y + self.cell_size // 3))
+                    Tile(str(self.board[i][j]), cur_x, cur_y, self.cell_size)
+                elif type(self.board[i][j]) == list:
+                    Tile("marked", cur_x, cur_y, self.cell_size)
                 else:
-                    pygame.draw.rect(place, (255, 255, 255), (cur_x, cur_y, self.cell_size, self.cell_size), 1)
+                    Tile("empty", cur_x, cur_y, self.cell_size)
+                    # pygame.draw.rect(place, (255, 255, 255), (cur_x, cur_y, self.cell_size, self.cell_size), 1)
+                pygame.draw.rect(place, (0, 0, 0),
+                                 (self.left, self.top, self.size_x - self.left, self.size_y - self.top), 3)
                 cur_x += self.cell_size
             cur_y += self.cell_size
 
@@ -91,107 +143,52 @@ class Minesweeper(Board):
 
     def get_click(self, mouse_pos):
         cell = self.get_cell(mouse_pos)
-        self.open_cell(cell)
+        if cell:
+            self.open_cell(cell)
+
+    def mark_mine(self, mouse_pos):
+        cell = self.get_cell(mouse_pos)
+        if cell:
+            x, y = cell[0], cell[1]
+            if type(self.board[y][x]) != list:
+                self.board[y][x] = ["marked", self.board[y][x]]
+                self.tagged_mines += 1
+                print("Marked", cell)
+            else:
+                self.board[y][x] = self.board[y][x][1]
+                self.tagged_mines -= 1
 
     def open_cell(self, cell):
-        try:
-            x, y = cell[0], cell[1]
-            counter = 0
-            if self.board[y][x] == -1:
-                if 1 <= x <= self.width - 2 and 1 <= y <= self.height - 2:
-                    if self.is_mine(x - 1, y + 1):
-                        counter += 1
-                    if self.is_mine(x - 1, y):
-                        counter += 1
-                    if self.is_mine(x - 1, y - 1):
-                        counter += 1
-                    if self.is_mine(x, y + 1):
-                        counter += 1
-                    if self.is_mine(x, y - 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y + 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y):
-                        counter += 1
-                    if self.is_mine(x + 1, y - 1):
+        x, y = cell[0], cell[1]
+        counter = 0
+
+        if self.board[y][x] == 10:
+            self.lost = True
+            e = int(time.time() - start_time)
+            self.total_time = '{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)
+            self.result_left_mines = self.mines_count - self.tagged_mines
+            print("YOU LOST")
+
+        if self.board[y][x] == -1:
+            for y_edge in range(-1, 2):
+                for x_edge in range(-1, 2):
+                    if x + x_edge < 0 or x + x_edge >= self.width or y + y_edge < 0 or y + y_edge >= self.height:
+                        continue
+
+                    if self.board[y + y_edge][x + x_edge] == 10:
                         counter += 1
 
-                elif x == 0 and 1 <= y <= self.height - 2:
-                    if self.is_mine(x, y + 1):
-                        counter += 1
-                    if self.is_mine(x, y - 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y + 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y):
-                        counter += 1
-                    if self.is_mine(x + 1, y - 1):
-                        counter += 1
+            self.board[y][x] = counter
 
-                elif x == self.width - 1 and 1 <= y <= self.height - 2:
-                    if self.is_mine(x - 1, y + 1):
-                        counter += 1
-                    if self.is_mine(x - 1, y):
-                        counter += 1
-                    if self.is_mine(x - 1, y - 1):
-                        counter += 1
-                    if self.is_mine(x, y + 1):
-                        counter += 1
-                    if self.is_mine(x, y - 1):
-                        counter += 1
-                elif y == 0 and 1 <= x <= self.width - 2:
-                    if self.is_mine(x - 1, y):
-                        counter += 1
-                    if self.is_mine(x - 1, y + 1):
-                        counter += 1
-                    if self.is_mine(x, y + 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y):
-                        counter += 1
-                    if self.is_mine(x + 1, y + 1):
-                        counter += 1
-                elif y == self.height - 1 and 1 <= x <= self.width - 2:
-                    if self.is_mine(x - 1, y - 1):
-                        counter += 1
-                    if self.is_mine(x - 1, y):
-                        counter += 1
-                    if self.is_mine(x, y - 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y - 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y):
-                        counter += 1
-                elif x == 0 and y == 0:
-                    if self.is_mine(x, y + 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y + 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y):
-                        counter += 1
-                elif x == 0 and y == self.height - 1:
-                    if self.is_mine(x, y - 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y - 1):
-                        counter += 1
-                    if self.is_mine(x + 1, y):
-                        counter += 1
-                elif x == self.width - 1 and y == 0:
-                    if self.is_mine(x - 1, y):
-                        counter += 1
-                    if self.is_mine(x - 1, y + 1):
-                        counter += 1
-                    if self.is_mine(x, y + 1):
-                        counter += 1
-                elif x == self.width - 1 and self.height - 1:
-                    if self.is_mine(x - 1, y - 1):
-                        counter += 1
-                    if self.is_mine(x - 1, y):
-                        counter += 1
-                    if self.is_mine(x, y - 1):
-                        counter += 1
-                self.board[y][x] = counter
-        except:
-            pass
+        if self.board[y][x] == 0:
+            for y_edge in range(-1, 2):
+                for x_edge in range(-1, 2):
+                    if x + x_edge < 0 or x + x_edge >= self.width or y + y_edge < 0 or y + y_edge >= self.height:
+                        continue
+
+                    if self.board[y + y_edge][x + x_edge] == -1:
+                        self.open_cell((x + x_edge, y + y_edge))
+
         # coords = (self.cell_size * x + self.left, self.cell_size * y + self.top)
         # self.draw(coords, counter)
 
@@ -209,36 +206,59 @@ class Minesweeper(Board):
     #     pygame.display.update()
 
 
-def minesweeper():
-    pygame.display.set_caption("Сборник игр: Сапер")
-    size = width, height = 1024, 768
+if __name__ == '__main__':
+    pygame.init()
+    pygame.display.set_caption('Сапер demo 0.1')
+    size = width, height = 800, 600
     screen = pygame.display.set_mode(size)
     screen.fill((0, 0, 0))
-    #pygame.display.flip()
+    pygame.display.flip()
+    tile_images = {
+        '0': load_image('data/minesweeper/0.png'),
+        '1': load_image('data/minesweeper/1.png'),
+        '2': load_image('data/minesweeper/2.png'),
+        '3': load_image('data/minesweeper/3.png'),
+        '4': load_image('data/minesweeper/4.png'),
+        '5': load_image('data/minesweeper/5.png'),
+        '6': load_image('data/minesweeper/6.png'),
+        '7': load_image('data/minesweeper/7.png'),
+        '8': load_image('data/minesweeper/8.png'),
+        'bomb': load_image('data/minesweeper/bomb.png'),
+        'marked': load_image('data/minesweeper/flagged.png'),
+        'empty': load_image('data/minesweeper/facingDown.png')
+    }
     running = True
+    start_time = time.time()
     flag = False
     r = 10
     v = 10  # пикселей в секунду
     clock = pygame.time.Clock()
-
-    board = Minesweeper(10, 15, 10)
+    all_sprites = pygame.sprite.Group()
+    tiles_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
+    board = Minesweeper(16, 16, 40)
     board.set_view(10, 10, 35)
-    to_main_menu = Button(300, 70, screen, pygame)
-    while True:
+    running = True
+    while running:
+        # all_sprites.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                board.get_click(event.pos)
-        screen.fill((0, 0, 0))
-        if to_main_menu.draw(600, 100, "", font_size=70, cmd="close"):
-            break
+                if not board.lost:
+                    if event.button == 1:
+                        board.get_click(event.pos)
+                    elif event.button == 2:
+                        print("middle mouse button")
+                    elif event.button == 3:
+                        board.mark_mine(event.pos)
+
+        screen.fill((187, 187, 187))
+        # all_sprites.update()
+        all_sprites.draw(screen)
+        player_group.draw(screen)
         board.render(screen)
-        pygame.display.update()
-
-
-if __name__ == '__main__':
-    pygame.init()
-    minesweeper()
+        pygame.display.flip()
+        if board.lost:
+            pass
     pygame.quit()
