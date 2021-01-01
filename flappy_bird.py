@@ -5,6 +5,7 @@ import random
 
 clock = pygame.time.Clock()
 
+colour_list = ["black", "red", "green", "blue"]
 
 def pause_logo(IF_PLAYING, play_button, pause_button):
     if IF_PLAYING:
@@ -68,6 +69,8 @@ class Bird(pygame.sprite.Sprite):
     def __init__(self, radius=30, x=100, y=400):
         super().__init__(bird_sprite)
         self.radius = radius
+        self.x = x
+        self.y = y
         self.image = pygame.Surface((2 * radius, 2 * radius),
                                     pygame.SRCALPHA, 32)
         pygame.draw.circle(self.image, pygame.Color("red"),
@@ -85,6 +88,11 @@ class Bird(pygame.sprite.Sprite):
                 if "btn_clicked" in args and IF_PLAYING:
                     self.rect = self.rect.move(0, 50)
                 elif IF_PLAYING:
+                    self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
+                                                pygame.SRCALPHA, 32)
+                    pygame.draw.circle(self.image, pygame.Color(random.choice(colour_list)),
+                                       (self.radius, self.radius), self.radius)
+                    self.rect = pygame.Rect(self.x, self.y, 2 * self.radius, 2 * self.radius)
                     self.rect = self.rect.move(0, -50)
 
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
@@ -176,4 +184,4 @@ def flappy_bird(music_on_imported):
 
 if __name__ == '__main__':
     pygame.init()
-    flappy_bird()
+    flappy_bird((sound_on, (30, 683)))
