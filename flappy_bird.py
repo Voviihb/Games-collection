@@ -1,6 +1,6 @@
 import pygame
 import sys
-from scripts import load_image, Button, print_text, to_main_menu_button, pause_button_func
+from scripts import load_image, Button, print_text, to_main_menu_button, pause_button_func, music
 import random
 
 clock = pygame.time.Clock()
@@ -28,6 +28,9 @@ IF_PLAYING = True
 bird_sprite = pygame.sprite.Group()
 floor_sprite = pygame.sprite.Group()
 pipe_sprites = pygame.sprite.Group()
+
+sound_on = load_image("data/unmute.png", pygame)
+sound_off = load_image("data/mute.png", pygame)
 
 
 class Pipe(pygame.sprite.Sprite):
@@ -76,22 +79,29 @@ class Bird(pygame.sprite.Sprite):
         if IF_PLAYING:
             self.rect = self.rect.move(0, self.vy)
         if args:
-            if args == "kill":
+            if "kill" in args:
                 self.kill()
             else:
-                if IF_PLAYING:
+                if "btn_clicked" in args and IF_PLAYING:
+                    self.rect = self.rect.move(0, 50)
+                elif IF_PLAYING:
                     self.rect = self.rect.move(0, -50)
+
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
             print("Game over")
             sys.exit()
 
 
-def flappy_bird():
+def flappy_bird(music_on_imported):
     global bird_sprite, floor_sprite, pipe_sprites
 
     close_button = load_image("data/close_button.png", pygame)
     pause_button = load_image("data/pause_button.png", pygame)
     play_button = load_image("data/play_button.png", pygame)
+
+    music_on = sound_on, (30, 683)
+    if music_on_imported[1] != music_on[1]:
+        music_on = music(music_on, pygame, sound_on, sound_off)
 
     bird_sprite = pygame.sprite.Group()
     floor_sprite = pygame.sprite.Group()
@@ -111,6 +121,7 @@ def flappy_bird():
 
     to_main_menu_local = to_main_menu_button(screen, pygame)
     pause_local = pause_button_func(screen, pygame)
+    music_button = Button(100, 100, screen, pygame)
 
     SPAWNPIPE = pygame.USEREVENT
     counter = -1
@@ -135,8 +146,9 @@ def flappy_bird():
         pipe_sprites.draw(screen)
         if to_main_menu_local.draw(10, 10, "", font_size=70, cmd="close"):
             bird_sprite.update("kill")
-            return
+            return music_on
         if pause_local.draw(140, 10, "", font_size=70, cmd="pause"):
+            bird_sprite.update("btn_clicked")
             IF_PLAYING = not IF_PLAYING
 
         if IF_PLAYING:
@@ -149,7 +161,14 @@ def flappy_bird():
         else:
             print_text(str(counter), 450, 50, screen=screen, pygame=pygame, font_size=100)
 
+        a = music_button.draw(10, 658, "", action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
+        if a:
+            music_on = a
+            bird_sprite.update("btn_clicked")
+
         screen.blit(close_button, (20, 20))
+        screen.blit(*music_on)
+
         screen.blit(*pause_logo(IF_PLAYING, play_button, pause_button))
 
         clock.tick(FPS)

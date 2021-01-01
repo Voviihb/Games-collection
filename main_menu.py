@@ -53,10 +53,14 @@ def start_screen():
             if event.type == pygame.QUIT:
                 terminate()
         screen.blit(background, (0, 0))
-        start_flappy_bird.draw(300, 200, "Flappy bird", action=flappy_bird.flappy_bird, font_size=70)
-        music_on_local = start_sapper.draw(700, 200, "Сапер", action=minesweeper.minesweeper, font_size=70, arg=music_on)
-        if music_on_local:
-            if music_on[1] != music_on_local[1]:
+        music_on_local_sapper_flappy = start_flappy_bird.draw(300, 200, "Flappy bird", action=flappy_bird.flappy_bird, font_size=70, arg=music_on)
+        if music_on_local_sapper_flappy:
+            if music_on[1] != music_on_local_sapper_flappy[1]:
+                music_on = music(music_on, pygame, sound_on, sound_off)
+
+        music_on_local_sapper = start_sapper.draw(700, 200, "Сапер", action=minesweeper.minesweeper, font_size=70, arg=music_on)
+        if music_on_local_sapper:
+            if music_on[1] != music_on_local_sapper[1]:
                 music_on = music(music_on, pygame, sound_on, sound_off)
 
         quit_button.draw(500, 500, "Выход", action=terminate, font_size=70)
