@@ -1,18 +1,6 @@
 import pygame, time, sys
 from random import randrange
-from scripts import load_image, render_text, to_main_menu_button, Button
-#from main_menu import music
-
-
-def music():
-    global music_on
-    if sound_off in music_on:
-        pygame.mixer.music.play()
-        music_on = sound_on, (30, 683)
-    else:
-        pygame.mixer.music.stop()
-        music_on = sound_off, (30, 682)
-
+from scripts import load_image, render_text, to_main_menu_button, Button, music
 
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
@@ -133,7 +121,8 @@ class Minesweeper(Board):
         if not self.lost:
             e = int(time.time() - start_time)
 
-            render_text(self.place, pygame, self.size_x + 30, 50, f"Mines left: {self.mines_count - self.tagged_mines}", scale=30,
+            render_text(self.place, pygame, self.size_x + 30, 50, f"Mines left: {self.mines_count - self.tagged_mines}",
+                        scale=30,
                         colour=(0, 255, 0))
 
             render_text(self.place, pygame, self.size_x + 30, 100,
@@ -144,7 +133,7 @@ class Minesweeper(Board):
                         scale=30,
                         colour=(0, 255, 0))
 
-            render_text(self.place,pygame, self.size_x + 30, 100,
+            render_text(self.place, pygame, self.size_x + 30, 100,
                         f"Your time: {self.total_time}", scale=30,
                         colour=(0, 255, 0))
 
@@ -245,12 +234,13 @@ class Minesweeper(Board):
 
 def minesweeper(music_on_imported):
     screen = pygame.display.set_mode((1024, 768))
+    pygame.display.set_caption("Сборник игр: Сапер")
     screen.fill((0, 0, 0))
     pygame.display.flip()
-    global start_time, music_on
+    global start_time
     music_on = sound_on, (30, 683)
     if music_on_imported[1] != music_on[1]:
-        music()
+        music_on = music(music_on, pygame, sound_on, sound_off)
     start_time = time.time()
     flag = False
     r = 10
@@ -288,7 +278,9 @@ def minesweeper(music_on_imported):
             return music_on
 
         screen.blit(close_button, (900, 650))
-        music_button.draw(10, 658, "", action=music, font_size=70)
+        a = music_button.draw(10, 658, "", action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
+        if a:
+            music_on = a
         screen.blit(*music_on)
 
         pygame.display.flip()
@@ -301,4 +293,3 @@ if __name__ == '__main__':
     pygame.display.set_caption('Сапер demo 0.1')
     size = width, height = 800, 600
     minesweeper()
-

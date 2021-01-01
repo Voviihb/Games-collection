@@ -45,7 +45,7 @@ class Button:
         self.inactive_clr = inactive_clr
         self.active_clr = active_clr
 
-    def draw(self, x, y, message, action=None, font_size=50, cmd=None, arg=None):
+    def draw(self, x, y, message, action=None, font_size=50, cmd=None, arg=None, args=None):
         mouse = self.pygame.mouse.get_pos()
         click = self.pygame.mouse.get_pressed()
 
@@ -58,6 +58,8 @@ class Button:
                 if action:
                     if arg:
                         return action(arg)
+                    elif args:
+                        return action(*args)
                     else:
                         action()
                 if cmd:
@@ -73,3 +75,12 @@ def to_main_menu_button(screen, pygame):
 
 def pause_button_func(screen, pygame):
     return Button(120, 120, screen, pygame, active_clr=(255, 0, 0))
+
+
+def music(music_on, pygame, sound_on, sound_off):
+    if sound_off in music_on:
+        pygame.mixer.music.play()
+        return sound_on, (30, 683)
+    else:
+        pygame.mixer.music.stop()
+        return sound_off, (30, 682)
