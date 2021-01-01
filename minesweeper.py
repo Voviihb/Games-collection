@@ -1,6 +1,6 @@
 import pygame, time, sys
 from random import randrange
-from scripts import load_image, render_text, to_main_menu_button, Button, music
+from scripts import load_image, render_text, to_main_menu_button, Button, music, play_again_button
 
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
@@ -85,7 +85,7 @@ class Board:
 
 
 class Minesweeper(Board):
-    def __init__(self, width=10, height=10, mines_count=20):
+    def __init__(self, mode=2, width=16, height=16, mines_count=40):
         self.lost = False
         self.width = width
         self.height = height
@@ -161,6 +161,10 @@ class Minesweeper(Board):
                                  (self.left, self.top, self.size_x - self.left, self.size_y - self.top), 3)
                 cur_x += self.cell_size
             cur_y += self.cell_size
+
+    def restart(self):
+        self.__init__(16, 16, 40)
+        Minesweeper.set_view(self, 10, 10, 35)
 
     def is_mine(self, x, y):
         if self.board[y][x] == 10:
@@ -247,8 +251,10 @@ def minesweeper(music_on_imported):
     v = 10  # пикселей в секунду
 
     close_button = load_image("data/close_button.png", pygame)
+    restart_button = load_image("data/restart_button.png", pygame)
     music_button = Button(100, 100, screen, pygame)
     to_main_menu_local = to_main_menu_button(screen, pygame)
+    play_again_but = play_again_button(screen, pygame)
 
     board = Minesweeper(16, 16, 40)
     board.set_view(10, 10, 35)
@@ -277,7 +283,11 @@ def minesweeper(music_on_imported):
         if to_main_menu_local.draw(890, 640, "", font_size=70, cmd="close"):
             return music_on
 
+        if play_again_but.draw(700, 640, "", font_size=70, cmd="again"):
+            board.restart()
+
         screen.blit(close_button, (900, 650))
+        screen.blit(restart_button, (700, 640))
         a = music_button.draw(10, 658, "", action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
         if a:
             music_on = a
@@ -290,6 +300,6 @@ def minesweeper(music_on_imported):
 
 if __name__ == '__main__':
     pygame.init()
-    pygame.display.set_caption('Сапер demo 0.1')
+    pygame.display.set_caption('Сапер beta 0.2')
     size = width, height = 800, 600
-    minesweeper()
+    minesweeper((sound_on, (30, 683)))

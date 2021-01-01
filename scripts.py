@@ -77,6 +77,10 @@ def pause_button_func(screen, pygame):
     return Button(120, 120, screen, pygame, active_clr=(255, 0, 0))
 
 
+def play_again_button(screen, pygame):
+    return Button(120, 120, screen, pygame, active_clr=(255, 0, 0))
+
+
 def music(music_on, pygame, sound_on, sound_off):
     if sound_off in music_on:
         pygame.mixer.music.play()
