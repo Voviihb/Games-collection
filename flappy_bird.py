@@ -1,6 +1,6 @@
 import pygame
 import sys
-from scripts import load_image, Button, print_text, to_main_menu_button, pause_button_func, music
+from scripts import load_image, Button, print_text, to_main_menu_button, pause_button_func, music, play_again_button
 import random
 import time
 
@@ -49,10 +49,10 @@ class Pipe(pygame.sprite.Sprite):
             self.image = pygame.Surface([50, HEIGHT - y - 200])
             self.rect = pygame.Rect(x, 0, 50, HEIGHT - y - 200)
 
-    def update(self):
+    def update(self, arg=None):
         self.rect = self.rect.move(-6/FPS*60, 0)
         global counter
-        if self.rect[0] < 0:
+        if self.rect[0] < 0 or arg == "kill":
             self.kill()
         if self.rect[0] == 100 and self.place == "top":
             counter += 1
@@ -134,6 +134,7 @@ def flappy_bird(music_on_imported):
     close_button = load_image("data/close_button.png", pygame)
     pause_button = load_image("data/pause_button.png", pygame)
     play_button = load_image("data/play_button.png", pygame)
+    restart_button = load_image("data/restart_button.png", pygame)
 
     music_on = sound_on, (30, 683)
     if music_on_imported[1] != music_on[1]:
@@ -148,6 +149,7 @@ def flappy_bird(music_on_imported):
     background = pygame.transform.scale(load_image('data/flappy_bird/background.png', pygame), (WIDTH, HEIGHT))
     base = pygame.transform.scale(load_image('data/flappy_bird/base.png', pygame), (1024, 70))
 
+
     floor_x_pos = 0
     Bird()
     Border(5, 5, WIDTH - 5, 5)
@@ -158,10 +160,10 @@ def flappy_bird(music_on_imported):
     to_main_menu_local = to_main_menu_button(screen, pygame)
     pause_local = pause_button_func(screen, pygame)
     music_button = Button(100, 100, screen, pygame)
+    play_again_btn = play_again_button(screen, pygame)
 
-    SPAWNPIPE = pygame.USEREVENT
     counter = 0
-    pygame.time.set_timer(SPAWNPIPE, 1200)
+
     y = random.randint(100, 300)
     Pipe(y=y, place="bottom")
     Pipe(y=y, place="top")
@@ -177,8 +179,6 @@ def flappy_bird(music_on_imported):
                         btns_top_coords[0][0] < event.pos[0] < btns_top_coords[0][1] and btns_top_coords[1][0] <
                         event.pos[1] < btns_top_coords[1][1]):
                     bird_sprite.update(event)
-            if event.type == SPAWNPIPE and IF_PLAYING:
-                pass
 
         pygame.display.update()
         screen.blit(background, (0, 0))
@@ -187,8 +187,17 @@ def flappy_bird(music_on_imported):
         if to_main_menu_local.draw(10, 10, "", font_size=70, cmd="close"):
             bird_sprite.update("kill")
             return music_on
+
         if pause_local.draw(140, 10, "", font_size=70, cmd="pause"):
             IF_PLAYING = not IF_PLAYING
+
+        if play_again_btn.draw(270, 10, "", font_size=70, cmd="again"):
+            counter = 0
+            pipe_sprites.update("kill")
+            y = random.randint(100, 300)
+            Pipe(y=y, place="bottom")
+            Pipe(y=y, place="top")
+            print("restarted")
 
         if IF_PLAYING:
             floor_x_pos = draw_floor(floor_x_pos, screen, base)  # перемещение пола
@@ -205,6 +214,7 @@ def flappy_bird(music_on_imported):
             music_on = a
 
         screen.blit(close_button, (20, 20))
+        screen.blit(restart_button, (268, 10))
         screen.blit(*music_on)
 
         screen.blit(*pause_logo(IF_PLAYING, play_button, pause_button))
