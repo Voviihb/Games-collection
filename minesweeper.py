@@ -1,4 +1,4 @@
-import pygame, time, sys
+import pygame, time, sys, os
 from random import randrange
 from scripts import load_image, render_text, to_main_menu_button, Button, music, play_again_button
 
@@ -262,26 +262,24 @@ class Minesweeper(Board):
 
 
 def minesweeper(music_on_imported):
-    screen = pygame.display.set_mode((1024, 768))
-    pygame.display.set_caption("Сборник игр: Сапер")
-    screen.fill((0, 0, 0))
-    pygame.display.flip()
-    global start_time
-    start_time = time.time()
     music_on = sound_on, (30, 683)
     if music_on_imported[1] != music_on[1]:
         music_on = music(music_on, pygame, sound_on, sound_off)
-    flag = False
-    r = 10
-    v = 10  # пикселей в секунду
-
+    screen = pygame.display.set_mode((1024, 768))
+    FPS = 60
+    pygame.display.set_caption("Сборник игр: Сапер")
+    # start_screen()
+    screen.fill((0, 0, 0))
+    pygame.display.flip()
+    start_screen(screen, FPS)
     close_button = load_image("data/close_button.png", pygame)
     restart_button = load_image("data/restart_button.png", pygame)
     music_button = Button(100, 100, screen, pygame)
     to_main_menu_local = to_main_menu_button(screen, pygame)
     play_again_but = play_again_button(screen, pygame)
-
-    board = Minesweeper(3)
+    global start_time
+    start_time = time.time()
+    board = Minesweeper(g_mode)
     board.set_view(10, 10, 35)
     running = True
     while running:
@@ -323,6 +321,71 @@ def minesweeper(music_on_imported):
         pygame.display.flip()
         if board.lost:
             pass
+
+
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+
+def start_screen(screen, FPS):
+    intro_text = ["Правила игры",
+                  "Число в ячейке показывает, сколько мин скрыто вокруг данной ячейки. ",
+                  "Это число поможет понять вам, где находятся безопасные ячейки, а где находятся бомбы.",
+                  "Если рядом с открытой ячейкой есть пустая ячейка, то она откроется автоматически.",
+                  "Если вы открыли ячейку с миной, то игра проиграна..",
+                  "Что бы пометить ячейку, в которой находится бомба, нажмите её правой кнопкой мыши.",
+                  "После того, как вы отметите все мины, можно навести курсор на открытую ячейку и ",
+                  "нажать правую и левую кнопку мыши одновременно. ",
+                  "Тогда откроются все свободные ячейки вокруг неё",
+                  "Если в ячейке указано число, оно показывает, ",
+                  "сколько мин скрыто в восьми ячейках вокруг данной. ",
+                  "Это число помогает понять, где находятся безопасные ячейки.",
+                  "Игра продолжается до тех пор, пока вы не откроете все не заминированные ячейки.",
+                  " ",
+                  "Вам доступно 4 режима игры:",
+                  "1. Простой. Поле 9x9, 10 мин",
+                  "2. Средний. Поле 16x16, 40 мин",
+                  "3. Простой с просмотром мин. Поле 9x9, 10 мин",
+                  "4. Средний с просмотром мин. Поле 16x16, 40 мин",
+                  " ",
+                  "Для выбора нажмите соответствующую цифру на клавиатуре"]
+
+    fullname = os.path.join('data/minesweeper', 'fon.jpg')
+    fon = pygame.transform.scale(load_image(fullname, pygame), (1024, 768))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 30)
+    text_coord = 50
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color('black'))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            keys = pygame.key.get_pressed()
+            if keys:
+                global g_mode
+                if keys[pygame.K_1]:
+                    g_mode = 1
+                    return
+                if keys[pygame.K_2]:
+                    g_mode = 2
+                    return
+                if keys[pygame.K_3]:
+                    g_mode = 3
+                    return
+                if keys[pygame.K_4]:
+                    g_mode = 4
+                    return
+        pygame.display.flip()
+        clock.tick(FPS)
 
 
 if __name__ == '__main__':
