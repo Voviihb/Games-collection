@@ -100,20 +100,15 @@ class Bird(pygame.sprite.Sprite):
         if args:
             if "kill" in args:
                 self.kill()
-            else:
-                if "btn_clicked" in args and IF_PLAYING:
-                    self.rect = self.rect.move(0, 50)
-                    self.y += 50
-                elif IF_PLAYING:
-                    self.y -= 50
-                    self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
-                                                pygame.SRCALPHA, 32)
-                    pygame.draw.circle(self.image, pygame.Color("blue"),
-                                       (self.radius, self.radius), self.radius)
-                    self.rect = pygame.Rect(self.x, self.y, 2 * self.radius, 2 * self.radius)
-                    self.rect = self.rect.move(0, -50)
-                    self.jumped = True
-
+            if IF_PLAYING:
+                self.y -= 50
+                self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
+                                            pygame.SRCALPHA, 32)
+                pygame.draw.circle(self.image, pygame.Color("blue"),
+                                   (self.radius, self.radius), self.radius)
+                self.rect = pygame.Rect(self.x, self.y, 2 * self.radius, 2 * self.radius)
+                self.rect = self.rect.move(0, -50)
+                self.jumped = True
 
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
             print("Game over")
@@ -122,6 +117,9 @@ class Bird(pygame.sprite.Sprite):
 
 def flappy_bird(music_on_imported):
     global bird_sprite, floor_sprite, pipe_sprites
+
+    btns_top_coords = (0, 260), (0, 130)
+    btns_floor_coords = [(0, 120), (650, 768)]
 
     close_button = load_image("data/close_button.png", pygame)
     pause_button = load_image("data/pause_button.png", pygame)
@@ -161,7 +159,12 @@ def flappy_bird(music_on_imported):
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                bird_sprite.update(event)
+                if not (btns_floor_coords[0][0] < event.pos[0] < btns_floor_coords[0][1] and btns_floor_coords[1][0] <
+                        event.pos[1] < btns_floor_coords[1][1]) \
+                        and not (
+                        btns_top_coords[0][0] < event.pos[0] < btns_top_coords[0][1] and btns_top_coords[1][0] <
+                        event.pos[1] < btns_top_coords[1][1]):
+                    bird_sprite.update(event)
             if event.type == SPAWNPIPE and IF_PLAYING:
                 y = random.randint(100, 300)
                 Pipe(y=y, place="bottom")
@@ -176,7 +179,6 @@ def flappy_bird(music_on_imported):
             bird_sprite.update("kill")
             return music_on
         if pause_local.draw(140, 10, "", font_size=70, cmd="pause"):
-            bird_sprite.update("btn_clicked")
             IF_PLAYING = not IF_PLAYING
 
         if IF_PLAYING:
@@ -192,7 +194,6 @@ def flappy_bird(music_on_imported):
         a = music_button.draw(10, 658, "", action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
         if a:
             music_on = a
-            bird_sprite.update("btn_clicked")
 
         screen.blit(close_button, (20, 20))
         screen.blit(*music_on)
