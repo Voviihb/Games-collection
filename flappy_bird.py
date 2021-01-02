@@ -2,10 +2,12 @@ import pygame
 import sys
 from scripts import load_image, Button, print_text, to_main_menu_button, pause_button_func, music
 import random
+import time
 
 clock = pygame.time.Clock()
 
 colour_list = ["black", "red", "green", "blue"]
+
 
 def pause_logo(IF_PLAYING, play_button, pause_button):
     if IF_PLAYING:
@@ -71,29 +73,47 @@ class Bird(pygame.sprite.Sprite):
         self.radius = radius
         self.x = x
         self.y = y
+        self.last_jump_time = time.time()
+        self.jumped = False
         self.image = pygame.Surface((2 * radius, 2 * radius),
                                     pygame.SRCALPHA, 32)
         pygame.draw.circle(self.image, pygame.Color("red"),
                            (radius, radius), radius)
         self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
-        self.vy = 2
+        self.vy = 3
 
     def update(self, *args):
         if IF_PLAYING:
             self.rect = self.rect.move(0, self.vy)
+            self.y += self.vy
+            if self.jumped:
+                if time.time() - self.last_jump_time > 1:
+                    self.y -= 50
+                    self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
+                                                pygame.SRCALPHA, 32)
+                    pygame.draw.circle(self.image, pygame.Color("red"),
+                                       (self.radius, self.radius), self.radius)
+                    self.rect = pygame.Rect(self.x, self.y, 2 * self.radius, 2 * self.radius)
+                    self.jumped = False
+                    self.last_jump_time = time.time()
+
         if args:
             if "kill" in args:
                 self.kill()
             else:
                 if "btn_clicked" in args and IF_PLAYING:
                     self.rect = self.rect.move(0, 50)
+                    self.y += 50
                 elif IF_PLAYING:
+                    self.y -= 50
                     self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
                                                 pygame.SRCALPHA, 32)
-                    pygame.draw.circle(self.image, pygame.Color(random.choice(colour_list)),
+                    pygame.draw.circle(self.image, pygame.Color("blue"),
                                        (self.radius, self.radius), self.radius)
                     self.rect = pygame.Rect(self.x, self.y, 2 * self.radius, 2 * self.radius)
                     self.rect = self.rect.move(0, -50)
+                    self.jumped = True
+
 
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
             print("Game over")
