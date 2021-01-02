@@ -25,6 +25,7 @@ def draw_floor(floor_pos, screen, base):
     return floor_pos
 
 
+counter = 0
 FPS = 60
 WIDTH, HEIGHT = 1024, 768
 IF_PLAYING = True
@@ -39,7 +40,8 @@ sound_off = load_image("data/mute.png", pygame)
 class Pipe(pygame.sprite.Sprite):
     def __init__(self, radius=30, x=1000, y=300, place="bottom"):
         super().__init__(pipe_sprites)
-
+        self.gened_next = False
+        self.place = place
         if place == "bottom":
             self.image = pygame.Surface([50, y])
             self.rect = pygame.Rect(x, HEIGHT - y, 50, y)
@@ -49,8 +51,12 @@ class Pipe(pygame.sprite.Sprite):
 
     def update(self):
         self.rect = self.rect.move(-10, 0)
+        global counter
         if self.rect[0] < 0:
             self.kill()
+        if self.rect[0] == 100 and self.place == "top":
+            print("+1")
+            counter += 1
 
 
 class Border(pygame.sprite.Sprite):
@@ -116,7 +122,7 @@ class Bird(pygame.sprite.Sprite):
 
 
 def flappy_bird(music_on_imported):
-    global bird_sprite, floor_sprite, pipe_sprites
+    global bird_sprite, floor_sprite, pipe_sprites, IF_PLAYING, counter
 
     btns_top_coords = (0, 260), (0, 130)
     btns_floor_coords = [(0, 120), (650, 768)]
@@ -150,9 +156,8 @@ def flappy_bird(music_on_imported):
     music_button = Button(100, 100, screen, pygame)
 
     SPAWNPIPE = pygame.USEREVENT
-    counter = -1
+    counter = 0
     pygame.time.set_timer(SPAWNPIPE, 1200)
-    global IF_PLAYING
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -169,7 +174,6 @@ def flappy_bird(music_on_imported):
                 y = random.randint(100, 300)
                 Pipe(y=y, place="bottom")
                 Pipe(y=y, place="top")
-                counter += 1
 
         pygame.display.update()
         screen.blit(background, (0, 0))
