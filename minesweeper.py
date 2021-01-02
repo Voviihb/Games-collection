@@ -1,6 +1,6 @@
 import pygame, time, sys
 from random import randrange
-from scripts import load_image, render_text, to_main_menu_button, Button, music
+from scripts import load_image, render_text, to_main_menu_button, Button, music, play_again_button
 
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
@@ -9,8 +9,6 @@ player_group = pygame.sprite.Group()
 
 sound_on = load_image("data/unmute.png", pygame)
 sound_off = load_image("data/mute.png", pygame)
-
-start_time = 0
 
 tile_images = {
     '0': load_image('data/minesweeper/0.png', pygame),
@@ -85,11 +83,32 @@ class Board:
 
 
 class Minesweeper(Board):
-    def __init__(self, width=10, height=10, mines_count=20):
+    def __init__(self, mode=2, width=16, height=16, mines_count=40):
         self.lost = False
-        self.width = width
-        self.height = height
-        self.mines_count = mines_count
+        self.not_win = True
+        self.cheat_mode = False
+        self.mode = mode
+        if self.mode == 2:
+            self.width = width
+            self.height = height
+            self.mines_count = mines_count
+        elif self.mode == 1:
+            self.width = 9
+            self.height = 9
+            self.mines_count = 10
+            Minesweeper.set_view(self, 10, 10, 50)
+        elif self.mode == 3:
+            self.width = 9
+            self.height = 9
+            self.mines_count = 10
+            self.cheat_mode = True
+            Minesweeper.set_view(self, 10, 10, 50)
+        elif self.mode == 4:
+            self.width = width
+            self.height = height
+            self.mines_count = mines_count
+            self.cheat_mode = True
+            Minesweeper.set_view(self, 10, 10, 25)
         self.tagged_mines = 0
         self.board = [[-1] * width for _ in range(height)]
         # for i in range(mines_count):
@@ -140,7 +159,7 @@ class Minesweeper(Board):
         for i in range(self.height):
             cur_x = self.left
             for j in range(self.width):
-                if self.board[i][j] == 10 and self.lost:
+                if self.board[i][j] == 10 and self.lost or self.board[i][j] == 10 and self.cheat_mode:
                     Tile("empty", cur_x, cur_y, self.cell_size)
                     Tile("bomb", cur_x, cur_y, self.cell_size)
                     # pygame.draw.rect(place, (255, 0, 0), (cur_x, cur_y, self.cell_size - 1, self.cell_size - 1))
@@ -162,6 +181,14 @@ class Minesweeper(Board):
                 cur_x += self.cell_size
             cur_y += self.cell_size
 
+    def restart(self):
+        self.__init__(self.mode)
+        Minesweeper.set_view(self, 10, 10, 35)
+        self.total_time = 0
+        global start_time
+        start_time = time.time()
+        self.lost = False
+
     def is_mine(self, x, y):
         if self.board[y][x] == 10:
             return True
@@ -176,11 +203,11 @@ class Minesweeper(Board):
         cell = self.get_cell(mouse_pos)
         if cell:
             x, y = cell[0], cell[1]
-            if type(self.board[y][x]) != list:
+            if type(self.board[y][x]) != list and self.tagged_mines < self.mines_count:
                 self.board[y][x] = ["marked", self.board[y][x]]
                 self.tagged_mines += 1
                 print("Marked", cell)
-            else:
+            elif type(self.board[y][x]) == list:
                 self.board[y][x] = self.board[y][x][1]
                 self.tagged_mines -= 1
 
@@ -215,21 +242,23 @@ class Minesweeper(Board):
                     if self.board[y + y_edge][x + x_edge] == -1:
                         self.open_cell((x + x_edge, y + y_edge))
 
-        # coords = (self.cell_size * x + self.left, self.cell_size * y + self.top)
-        # self.draw(coords, counter)
-
-    # def draw(self, coords, counter):
-    #     screen = self.place
-    #     screen.fill((0, 0, 0))
-    #     x, y = coords[0], coords[1]
-    #     font = pygame.font.Font(None, 50)
-    #     text = font.render(str(counter), True, (0, 255, 0))
-    #     # text_x = x // 2 - text.get_width() // 2
-    #     # text_y = y // 2 - text.get_height() // 2
-    #     text_x = x
-    #     text_y = y // 2
-    #     screen.blit(text, (text_x, text_y))
-    #     pygame.display.update()
+    def win(self):
+        self.counter = 0
+        if self.tagged_mines == self.mines_count:
+            for i in range(self.height):
+                for j in range(self.width):
+                    if type(self.board[i][j]) == list and self.board[i][j][1] == 10:
+                        self.counter += 1
+            if self.counter != self.mines_count:
+                print("Not all the mines have been marked")
+                # print(self.board)
+            else:
+                print("You win!")
+                e = int(time.time() - start_time)
+                self.total_time = '{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)
+                self.result_left_mines = self.mines_count - self.tagged_mines
+                return True
+        return False
 
 
 def minesweeper(music_on_imported):
@@ -238,19 +267,21 @@ def minesweeper(music_on_imported):
     screen.fill((0, 0, 0))
     pygame.display.flip()
     global start_time
+    start_time = time.time()
     music_on = sound_on, (30, 683)
     if music_on_imported[1] != music_on[1]:
         music_on = music(music_on, pygame, sound_on, sound_off)
-    start_time = time.time()
     flag = False
     r = 10
     v = 10  # пикселей в секунду
 
     close_button = load_image("data/close_button.png", pygame)
+    restart_button = load_image("data/restart_button.png", pygame)
     music_button = Button(100, 100, screen, pygame)
     to_main_menu_local = to_main_menu_button(screen, pygame)
+    play_again_but = play_again_button(screen, pygame)
 
-    board = Minesweeper(16, 16, 40)
+    board = Minesweeper(3)
     board.set_view(10, 10, 35)
     running = True
     while running:
@@ -267,6 +298,8 @@ def minesweeper(music_on_imported):
                         print("middle mouse button")
                     elif event.button == 3:
                         board.mark_mine(event.pos)
+                        if board.win():
+                            board.lost = True
 
         screen.fill((187, 187, 187))
         # all_sprites.update()
@@ -277,7 +310,11 @@ def minesweeper(music_on_imported):
         if to_main_menu_local.draw(890, 640, "", font_size=70, cmd="close"):
             return music_on
 
+        if play_again_but.draw(700, 640, "", font_size=70, cmd="again"):
+            board.restart()
+
         screen.blit(close_button, (900, 650))
+        screen.blit(restart_button, (700, 640))
         a = music_button.draw(10, 658, "", action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
         if a:
             music_on = a
@@ -290,6 +327,6 @@ def minesweeper(music_on_imported):
 
 if __name__ == '__main__':
     pygame.init()
-    pygame.display.set_caption('Сапер demo 0.1')
+    pygame.display.set_caption('Сапер beta 0.2')
     size = width, height = 800, 600
-    minesweeper()
+    minesweeper((sound_on, (30, 683)))
