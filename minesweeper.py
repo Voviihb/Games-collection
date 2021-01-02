@@ -5,7 +5,6 @@ from scripts import load_image, render_text, to_main_menu_button, Button, music,
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
 
 sound_on = load_image("data/unmute.png", pygame)
 sound_off = load_image("data/mute.png", pygame)
@@ -111,11 +110,6 @@ class Minesweeper(Board):
             Minesweeper.set_view(self, 10, 10, 25)
         self.tagged_mines = 0
         self.board = [[-1] * width for _ in range(height)]
-        # for i in range(mines_count):
-        #     x = randrange(self.width)
-        #     y = randrange(self.height)
-        #     if self.board[y][x] != 10:
-        #         self.board[y][x] = 10
 
         i = 0
         while i < self.mines_count:
@@ -125,7 +119,6 @@ class Minesweeper(Board):
                 self.board[y][x] = 10
                 i += 1
 
-        # print(self.board)
         # значения по умолчанию
         self.left = 10
         self.top = 10
@@ -162,20 +155,20 @@ class Minesweeper(Board):
                 if self.board[i][j] == 10 and self.lost or self.board[i][j] == 10 and self.cheat_mode:
                     Tile("empty", cur_x, cur_y, self.cell_size)
                     Tile("bomb", cur_x, cur_y, self.cell_size)
-                    # pygame.draw.rect(place, (255, 0, 0), (cur_x, cur_y, self.cell_size - 1, self.cell_size - 1))
+
                 elif self.lost and type(self.board[i][j]) == list and self.board[i][j][1] == 10:
                     Tile("marked", cur_x, cur_y, self.cell_size)
                     Tile("bomb", cur_x, cur_y, self.cell_size)
+
                 elif self.board[i][j] in (0, 1, 2, 3, 4, 5, 6, 7, 8):
-                    # f1 = pygame.font.Font(None, self.cell_size - 6)
-                    # text1 = f1.render(str(self.board[i][j]), True, (0, 255, 0))
-                    # place.blit(text1, (cur_x + self.cell_size // 3, cur_y + self.cell_size // 3))
                     Tile(str(self.board[i][j]), cur_x, cur_y, self.cell_size)
+
                 elif type(self.board[i][j]) == list:
                     Tile("marked", cur_x, cur_y, self.cell_size)
+
                 else:
                     Tile("empty", cur_x, cur_y, self.cell_size)
-                    # pygame.draw.rect(place, (255, 255, 255), (cur_x, cur_y, self.cell_size, self.cell_size), 1)
+
                 pygame.draw.rect(place, (0, 0, 0),
                                  (self.left, self.top, self.size_x - self.left, self.size_y - self.top), 3)
                 cur_x += self.cell_size
@@ -249,9 +242,10 @@ class Minesweeper(Board):
                 for j in range(self.width):
                     if type(self.board[i][j]) == list and self.board[i][j][1] == 10:
                         self.counter += 1
+
             if self.counter != self.mines_count:
                 print("Not all the mines have been marked")
-                # print(self.board)
+
             else:
                 print("You win!")
                 e = int(time.time() - start_time)
@@ -268,7 +262,6 @@ def minesweeper(music_on_imported):
     screen = pygame.display.set_mode((1024, 768))
     FPS = 60
     pygame.display.set_caption("Сборник игр: Сапер")
-    # start_screen()
     screen.fill((0, 0, 0))
     pygame.display.flip()
     start_screen(screen, FPS)
@@ -282,8 +275,8 @@ def minesweeper(music_on_imported):
     board = Minesweeper(g_mode)
     board.set_view(10, 10, 35)
     running = True
+
     while running:
-        # all_sprites.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -300,9 +293,7 @@ def minesweeper(music_on_imported):
                             board.lost = True
 
         screen.fill((187, 187, 187))
-        # all_sprites.update()
         all_sprites.draw(screen)
-        player_group.draw(screen)
         board.render(screen)
 
         if to_main_menu_local.draw(890, 640, "", font_size=70, cmd="close"):
@@ -314,6 +305,7 @@ def minesweeper(music_on_imported):
         screen.blit(close_button, (900, 650))
         screen.blit(restart_button, (700, 640))
         a = music_button.draw(10, 658, "", action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
+
         if a:
             music_on = a
         screen.blit(*music_on)
@@ -375,15 +367,19 @@ def start_screen(screen, FPS):
                 if keys[pygame.K_1]:
                     g_mode = 1
                     return
+
                 if keys[pygame.K_2]:
                     g_mode = 2
                     return
+
                 if keys[pygame.K_3]:
                     g_mode = 3
                     return
+
                 if keys[pygame.K_4]:
                     g_mode = 4
                     return
+
         pygame.display.flip()
         clock.tick(FPS)
 
