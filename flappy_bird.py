@@ -26,7 +26,7 @@ def draw_floor(floor_pos, screen, base):
 
 
 counter = 0
-FPS = 60
+FPS = 30
 WIDTH, HEIGHT = 1024, 768
 IF_PLAYING = True
 bird_sprite = pygame.sprite.Group()
@@ -50,13 +50,17 @@ class Pipe(pygame.sprite.Sprite):
             self.rect = pygame.Rect(x, 0, 50, HEIGHT - y - 200)
 
     def update(self):
-        self.rect = self.rect.move(-10, 0)
+        self.rect = self.rect.move(-6/FPS*60, 0)
         global counter
         if self.rect[0] < 0:
             self.kill()
         if self.rect[0] == 100 and self.place == "top":
-            print("+1")
             counter += 1
+
+        elif self.rect[0] == 400 and self.place == "top":
+            y = random.randint(100, 300)
+            Pipe(y=y, place="bottom")
+            Pipe(y=y, place="top")
 
 
 class Border(pygame.sprite.Sprite):
@@ -86,7 +90,7 @@ class Bird(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, pygame.Color("red"),
                            (radius, radius), radius)
         self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
-        self.vy = 3
+        self.vy = 3/FPS*60
 
     def update(self, *args):
         if IF_PLAYING:
@@ -158,6 +162,9 @@ def flappy_bird(music_on_imported):
     SPAWNPIPE = pygame.USEREVENT
     counter = 0
     pygame.time.set_timer(SPAWNPIPE, 1200)
+    y = random.randint(100, 300)
+    Pipe(y=y, place="bottom")
+    Pipe(y=y, place="top")
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -171,9 +178,7 @@ def flappy_bird(music_on_imported):
                         event.pos[1] < btns_top_coords[1][1]):
                     bird_sprite.update(event)
             if event.type == SPAWNPIPE and IF_PLAYING:
-                y = random.randint(100, 300)
-                Pipe(y=y, place="bottom")
-                Pipe(y=y, place="top")
+                pass
 
         pygame.display.update()
         screen.blit(background, (0, 0))
