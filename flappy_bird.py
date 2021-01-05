@@ -106,7 +106,7 @@ class Bird(pygame.sprite.Sprite):
             self.rect = self.rect.move(0, self.vy)
             self.y += self.vy
             if self.jumped:
-                if time.time() - self.last_jump_time > 1:
+                if time.time() - self.last_jump_time > 0.5:
                     self.image = bird_down
                     self.rect = bird_down.get_rect()
                     self.rect.x = self.x
