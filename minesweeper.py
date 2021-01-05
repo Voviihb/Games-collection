@@ -199,7 +199,7 @@ class Minesweeper(Board):
             if type(self.board[y][x]) != list and self.tagged_mines < self.mines_count:
                 self.board[y][x] = ["marked", self.board[y][x]]
                 self.tagged_mines += 1
-                print("Marked", cell)
+                # print("Marked", cell)
             elif type(self.board[y][x]) == list:
                 self.board[y][x] = self.board[y][x][1]
                 self.tagged_mines -= 1
