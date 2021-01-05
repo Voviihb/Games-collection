@@ -1,4 +1,5 @@
 import sys, os
+R, G, B = 0, 1, 2  # Constants to fast change color format
 
 
 def load_image(name, pygame, colorkey=None):
@@ -42,15 +43,23 @@ class Button:
         self.btn_sound = self.pygame.mixer.Sound('data/sound_btn_1.mp3')
         self.width = width
         self.height = height
+        self.current_clr = list(inactive_clr)
         self.inactive_clr = inactive_clr
         self.active_clr = active_clr
+        self.diff_clr = [i - k >= 0 for i, k in zip(active_clr, inactive_clr)]
 
     def draw(self, x, y, message, action=None, font_size=50, cmd=None, arg=None, args=None):
         mouse = self.pygame.mouse.get_pos()
         click = self.pygame.mouse.get_pressed()
 
         if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
-            self.pygame.draw.rect(self.screen, self.active_clr, (x, y, self.width, self.height))
+            for i in range(len(self.current_clr)):
+                if self.diff_clr[i]:
+                    self.current_clr[i] = min(self.active_clr[i], self.current_clr[i] + 2)
+                else:
+                    self.current_clr[i] = max(self.active_clr[i], self.current_clr[i] - 2)
+
+            self.pygame.draw.rect(self.screen, self.current_clr, (x, y, self.width, self.height))
 
             if click[0] == 1:
                 self.pygame.mixer.Sound.play(self.btn_sound)
@@ -65,7 +74,13 @@ class Button:
                 if cmd:
                     return cmd
         else:
-            self.pygame.draw.rect(self.screen, self.inactive_clr, (x, y, self.width, self.height))
+            for i in range(len(self.current_clr)):
+                if self.diff_clr[i]:
+                    self.current_clr[i] = max(self.inactive_clr[i], self.current_clr[i] - 2)
+                else:
+                    self.current_clr[i] = min(self.inactive_clr[i], self.current_clr[i] + 2)
+
+            self.pygame.draw.rect(self.screen, self.current_clr, (x, y, self.width, self.height))
         print_text(message, x + 10, y + 10, self.screen, self.pygame, font_size=font_size)
 
 
