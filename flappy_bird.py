@@ -218,14 +218,14 @@ def flappy_bird(music_on_imported):
         screen.blit(background, (0, 0))
         bird_sprite.draw(screen)
         pipe_sprites.draw(screen)
-        if to_main_menu_local.draw(10, 10, "", font_size=70, cmd="close"):
+        if to_main_menu_local.draw(10, 10, image=close_button, font_size=70, cmd="close"):
             bird_sprite.update("kill")
             return music_on
 
-        if pause_local.draw(140, 10, "", font_size=70, cmd="pause"):
+        if pause_local.draw(140, 10, image=pause_button if IF_PLAYING else play_button, font_size=70, cmd="pause"):
             IF_PLAYING = not IF_PLAYING
 
-        if play_again_btn.draw(270, 10, "", font_size=70, cmd="again"):
+        if play_again_btn.draw(270, 10, image=restart_button, font_size=70, cmd="again"):
             RESTARTINGTICK = 0
             IF_PLAYING = True
             counter = 0
@@ -253,15 +253,13 @@ def flappy_bird(music_on_imported):
         else:
             print_text(str(counter), 450, 50, screen=screen, pygame=pygame, font_size=100)
 
-        a = music_button.draw(10, 658, "", action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
+        a = music_button.draw(10, 658, image=music_on[0], action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
         if a:
             music_on = a
 
-        screen.blit(close_button, (20, 20))
-        screen.blit(restart_button, (268, 10))
-        screen.blit(*music_on)
-
-        screen.blit(*pause_logo(IF_PLAYING, play_button, pause_button))
+        #screen.blit(close_button, (20, 20))
+        #screen.blit(restart_button, (268, 10))
+        #screen.blit(*music_on)
 
         a = clock.tick(FPS)
         RESTARTINGTICK += a if RESTARTINGTICK < 4000 else 0

@@ -60,9 +60,43 @@ class Button:
         self.active_clr = active_clr
         self.diff_clr = [(i - k) // 10 for i, k in zip(active_clr, inactive_clr)]
 
-    def draw(self, x, y, message, action=None, font_size=50, cmd=None, arg=None, args=None):
+    def SetSize(self, width, height):
+        self.width = width
+        self.height = height
+
+    def draw(self, x, y, message="", image=None, action=None, font_size=50, cmd=None, arg=None, args=None):
         mouse = self.pygame.mouse.get_pos()
         click = self.pygame.mouse.get_pressed()
+
+        rh = self.height // 3
+        MiddleRectSize = (self.width, self.height - rh * 2)
+        topleft = (x + rh, y + rh)
+        RectsSize = (self.width - rh * 2, self.height - rh * 2)
+        self.pygame.draw.circle(self.screen, self.current_clr, topleft, rh, draw_top_left=True)
+        self.pygame.draw.circle(self.screen, self.current_clr, (x + rh, y + self.height - rh), rh,
+                                draw_bottom_left=True)
+        self.pygame.draw.circle(self.screen, self.current_clr, (x + self.width - rh, y + rh), rh, draw_top_right=True)
+        self.pygame.draw.circle(self.screen, self.current_clr, (x + self.width - rh, y + self.height - rh), rh,
+                                draw_bottom_right=True)
+
+        self.pygame.draw.rect(self.screen, self.current_clr, (x + rh, y) + RectsSize)  # Top rectangle
+        self.pygame.draw.rect(self.screen, self.current_clr, (x, y + rh) + MiddleRectSize)  # Middle rectangle
+        self.pygame.draw.rect(self.screen, self.current_clr, (x + rh, y + self.height - rh) + RectsSize)  # Bottom rect
+
+        if message:
+            print_text_from_center(message, x + self.width // 2, y + self.height // 2, self.screen, self.pygame,
+                                   font_size=font_size)
+        elif image:
+            ImageW = self.width - self.width // 2
+            ImageH = self.height - self.height // 2
+            rect = image.get_rect()
+            CurrentW = rect.height
+            CurrentH = rect.width
+            if CurrentW != ImageW or CurrentH != ImageH:
+                image = self.pygame.transform.smoothscale(image, (ImageW, ImageH))
+            Center = x + self.width // 2, y + self.height // 2
+            DrawX, DrawY = Center[0] - ImageW // 2, Center[1] - ImageH // 2
+            self.screen.blit(image, (DrawX, DrawY))
 
         if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
             for i in range(len(self.current_clr)):
@@ -88,25 +122,6 @@ class Button:
                     self.current_clr[i] = max(self.inactive_clr[i], self.current_clr[i] - self.diff_clr[i])
                 else:
                     self.current_clr[i] = min(self.inactive_clr[i], self.current_clr[i] - self.diff_clr[i])
-
-        rh = self.height // 3
-        rw = self.width // 3
-        MiddleRectSize = (self.width, self.height - rh * 2)
-        topleft = (x + rh, y + rh)
-        RectsSize = (self.width - rh * 2, self.height - rh * 2)
-        self.pygame.draw.circle(self.screen, self.current_clr, topleft, rh, draw_top_left=True)
-        self.pygame.draw.circle(self.screen, self.current_clr, (x + rh, y + self.height - rh), rh,
-                                draw_bottom_left=True)
-        self.pygame.draw.circle(self.screen, self.current_clr, (x + self.width - rh, y + rh), rh, draw_top_right=True)
-        self.pygame.draw.circle(self.screen, self.current_clr, (x + self.width - rh, y + self.height - rh), rh,
-                                draw_bottom_right=True)
-
-        self.pygame.draw.rect(self.screen, self.current_clr, (x + rh, y) + RectsSize)  # Top rectangle
-        self.pygame.draw.rect(self.screen, self.current_clr, (x, y + rh) + MiddleRectSize)  # Middle rectangle
-        self.pygame.draw.rect(self.screen, self.current_clr, (x + rh, y + self.height - rh) + RectsSize)  # Bottom rect
-
-        print_text_from_center(message, x + self.width // 2, y + self.height // 2, self.screen, self.pygame,
-                               font_size=font_size)
 
 
 def to_main_menu_button(screen, pygame):

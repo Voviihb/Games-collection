@@ -300,14 +300,14 @@ def minesweeper(music_on_imported):
         all_sprites.draw(screen)
         board.render(screen)
 
-        if to_main_menu_local.draw(890, 640, "", font_size=70, cmd="close"):
+        if to_main_menu_local.draw(890, 640, image=close_button, font_size=70, cmd="close"):
             return music_on
 
-        if play_again_but.draw(700, 640, "", font_size=70, cmd="again"):
+        if play_again_but.draw(700, 640, image=restart_button, font_size=70, cmd="again"):
             board.restart()
 
-        screen.blit(close_button, (900, 650))
-        screen.blit(restart_button, (700, 640))
+        #screen.blit(close_button, (900, 650))
+        #screen.blit(restart_button, (700, 640))
         a = music_button.draw(10, 658, "", action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
 
         if a:
