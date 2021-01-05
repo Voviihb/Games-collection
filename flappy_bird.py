@@ -16,8 +16,9 @@ def pause_logo(IF_PLAYING, play_button, pause_button):
         return pause_button, (135, 5)
 
 
-def draw_floor(floor_pos, screen, base):
-    floor_pos -= 2
+def draw_floor(floor_pos, screen, base, pause=False):
+    if not pause:
+        floor_pos -= 6/FPS*60
     screen.blit(base, (floor_pos, 705))
     screen.blit(base, (floor_pos + 1024, 705))
     if floor_pos <= -1024:
@@ -35,19 +36,28 @@ pipe_sprites = pygame.sprite.Group()
 
 sound_on = load_image("data/unmute.png", pygame)
 sound_off = load_image("data/mute.png", pygame)
+pipe_up = load_image('data/flappy_bird/pipe-green_up.png', pygame)
+pipe_down = load_image('data/flappy_bird/pipe-green_down.png', pygame)
 
 
 class Pipe(pygame.sprite.Sprite):
+
     def __init__(self, radius=30, x=1000, y=300, place="bottom"):
         super().__init__(pipe_sprites)
         self.gened_next = False
         self.place = place
         if place == "bottom":
-            self.image = pygame.Surface([50, y])
-            self.rect = pygame.Rect(x, HEIGHT - y, 50, y)
+            self.image = pipe_down
+            self.rect = pipe_down.get_rect()
+            self.rect.x = x
+            self.rect.y = HEIGHT - y
         if place == "top":
-            self.image = pygame.Surface([50, HEIGHT - y - 200])
-            self.rect = pygame.Rect(x, 0, 50, HEIGHT - y - 200)
+            #self.image = pygame.Surface([50, HEIGHT - y - 200])
+            #self.rect = pygame.Rect(x, 0, 50, HEIGHT - y - 200)
+            self.image = pipe_up
+            self.rect = pipe_up.get_rect()
+            self.rect.x = x
+            self.rect.y = HEIGHT - y - 200 - 626
 
     def update(self, arg=None):
         self.rect = self.rect.move(-6/FPS*60, 0)
@@ -200,9 +210,11 @@ def flappy_bird(music_on_imported):
             print("restarted")
 
         if IF_PLAYING:
-            floor_x_pos = draw_floor(floor_x_pos, screen, base)  # перемещение пола
             bird_sprite.update()
             pipe_sprites.update()
+            floor_x_pos = draw_floor(floor_x_pos, screen, base)  # перемещение пола
+        else:
+            floor_x_pos = draw_floor(floor_x_pos, screen, base, pause=True)
 
         if counter < 0:
             print_text("0", 450, 50, screen=screen, pygame=pygame, font_size=100)
