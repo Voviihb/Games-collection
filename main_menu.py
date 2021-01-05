@@ -71,8 +71,7 @@ def start_screen():
 
         quit_button.draw(500, 500, "Выход", action=terminate, font_size=70)
         a = music_button.draw(10, 658, "", action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
-        if a:
-            music_on = a
+        music_on = a if a else music_on
         screen.blit(*music_on)
         pygame.display.flip()
         clock.tick(60)
