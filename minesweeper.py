@@ -224,6 +224,10 @@ class Minesweeper(Board):
                     if self.board[y + y_edge][x + x_edge] == 10:
                         counter += 1
 
+                    elif type(self.board[y + y_edge][x + x_edge]) == list and \
+                            self.board[y + y_edge][x + x_edge][1] == 10:
+                        counter += 1
+
             self.board[y][x] = counter
 
         if self.board[y][x] == 0:
