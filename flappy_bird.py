@@ -38,6 +38,8 @@ sound_on = load_image("data/unmute.png", pygame)
 sound_off = load_image("data/mute.png", pygame)
 pipe_up = load_image('data/flappy_bird/pipe-green_up.png', pygame)
 pipe_down = load_image('data/flappy_bird/pipe-green_down.png', pygame)
+bird_down = load_image("data/flappy_bird/bluebird-midflap.png", pygame)
+bird_up = load_image("data/flappy_bird/bluebird-upflap.png", pygame)
 
 
 class Pipe(pygame.sprite.Sprite):
@@ -93,11 +95,10 @@ class Bird(pygame.sprite.Sprite):
         self.y = y
         self.last_jump_time = time.time()
         self.jumped = False
-        self.image = pygame.Surface((2 * radius, 2 * radius),
-                                    pygame.SRCALPHA, 32)
-        pygame.draw.circle(self.image, pygame.Color("red"),
-                           (radius, radius), radius)
-        self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
+        self.image = bird_down
+        self.rect = bird_down.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
         self.vy = 3/FPS*60
 
     def update(self, *args):
@@ -106,26 +107,29 @@ class Bird(pygame.sprite.Sprite):
             self.y += self.vy
             if self.jumped:
                 if time.time() - self.last_jump_time > 1:
-                    self.y -= 50
-                    self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
-                                                pygame.SRCALPHA, 32)
-                    pygame.draw.circle(self.image, pygame.Color("red"),
-                                       (self.radius, self.radius), self.radius)
-                    self.rect = pygame.Rect(self.x, self.y, 2 * self.radius, 2 * self.radius)
+                    self.image = bird_down
+                    self.rect = bird_down.get_rect()
+                    self.rect.x = self.x
+                    self.rect.y = self.y
                     self.jumped = False
                     self.last_jump_time = time.time()
 
         if args:
             if "kill" in args:
                 self.kill()
+            if "reset" in args:
+                self.x = 100
+                self.y = 400
+                self.image = bird_down
+                self.rect = bird_down.get_rect()
+                self.rect.x = self.x
+                self.rect.y = self.y
             if IF_PLAYING:
                 self.y -= 50
-                self.image = pygame.Surface((2 * self.radius, 2 * self.radius),
-                                            pygame.SRCALPHA, 32)
-                pygame.draw.circle(self.image, pygame.Color("blue"),
-                                   (self.radius, self.radius), self.radius)
-                self.rect = pygame.Rect(self.x, self.y, 2 * self.radius, 2 * self.radius)
-                self.rect = self.rect.move(0, -50)
+                self.image = bird_up
+                self.rect = bird_up.get_rect()
+                self.rect.x = self.x
+                self.rect.y = self.y
                 self.jumped = True
 
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
@@ -201,6 +205,7 @@ def flappy_bird(music_on_imported):
         if play_again_btn.draw(270, 10, "", font_size=70, cmd="again"):
             counter = 0
             pipe_sprites.update("kill")
+            bird_sprite.update("reset")
             y = random.randint(100, 300)
             Pipe(y=y, place="bottom")
             Pipe(y=y, place="top")
