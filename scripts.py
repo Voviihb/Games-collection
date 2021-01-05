@@ -1,4 +1,5 @@
 import sys, os
+
 R, G, B = 0, 1, 2  # Constants to fast change color format
 
 
@@ -35,6 +36,17 @@ def print_text(message, x, y, screen, pygame, font_size=30):
     screen.blit(string_rendered, intro_rect)
 
 
+def print_text_from_center(message, x, y, screen, pygame, font_size=30):
+    font = pygame.font.Font(None, font_size)
+    string_rendered = font.render(message, 1, pygame.Color('black'))
+    TextW = string_rendered.get_width()
+    TextH = string_rendered.get_height()
+    TextRect = string_rendered.get_rect()
+    TextRect.x = x - TextW // 2
+    TextRect.top = y - TextH // 2
+    screen.blit(string_rendered, TextRect)
+
+
 class Button:
     def __init__(self, width, height, screen, pygame=None, inactive_clr=(13, 162, 58), active_clr=(23, 204, 58)):
         self.screen = screen
@@ -58,9 +70,6 @@ class Button:
                     self.current_clr[i] = min(self.active_clr[i], self.current_clr[i] + self.diff_clr[i])
                 else:
                     self.current_clr[i] = max(self.active_clr[i], self.current_clr[i] + self.diff_clr[i])
-
-            self.pygame.draw.rect(self.screen, self.current_clr, (x, y, self.width, self.height))
-
             if click[0] == 1:
                 self.pygame.mixer.Sound.play(self.btn_sound)
                 self.pygame.time.delay(50)
@@ -80,8 +89,24 @@ class Button:
                 else:
                     self.current_clr[i] = min(self.inactive_clr[i], self.current_clr[i] - self.diff_clr[i])
 
-            self.pygame.draw.rect(self.screen, self.current_clr, (x, y, self.width, self.height))
-        print_text(message, x + 10, y + 10, self.screen, self.pygame, font_size=font_size)
+        rh = self.height // 3
+        rw = self.width // 3
+        MiddleRectSize = (self.width, self.height - rh * 2)
+        topleft = (x + rh, y + rh)
+        RectsSize = (self.width - rh * 2, self.height - rh * 2)
+        self.pygame.draw.circle(self.screen, self.current_clr, topleft, rh, draw_top_left=True)
+        self.pygame.draw.circle(self.screen, self.current_clr, (x + rh, y + self.height - rh), rh,
+                                draw_bottom_left=True)
+        self.pygame.draw.circle(self.screen, self.current_clr, (x + self.width - rh, y + rh), rh, draw_top_right=True)
+        self.pygame.draw.circle(self.screen, self.current_clr, (x + self.width - rh, y + self.height - rh), rh,
+                                draw_bottom_right=True)
+
+        self.pygame.draw.rect(self.screen, self.current_clr, (x + rh, y) + RectsSize)  # Top rectangle
+        self.pygame.draw.rect(self.screen, self.current_clr, (x, y + rh) + MiddleRectSize)  # Middle rectangle
+        self.pygame.draw.rect(self.screen, self.current_clr, (x + rh, y + self.height - rh) + RectsSize)  # Bottom rect
+
+        print_text_from_center(message, x + self.width // 2, y + self.height // 2, self.screen, self.pygame,
+                               font_size=font_size)
 
 
 def to_main_menu_button(screen, pygame):
