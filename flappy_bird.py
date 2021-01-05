@@ -64,6 +64,7 @@ def restart_skins():
 
 
 class Pipe(pygame.sprite.Sprite):
+
     def __init__(self, radius=30, x=1000, y=300, place="bottom"):
         super().__init__(pipe_sprites)
         self.gened_next = False
