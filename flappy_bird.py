@@ -6,7 +6,8 @@ import time
 
 clock = pygame.time.Clock()
 
-colour_list = ["red", "yellow", "blue"]
+bird_colour_list = ["red", "yellow", "blue"]
+pipe_colour_list = ["green", "red"]
 
 
 def pause_logo(IF_PLAYING, play_button, pause_button):
@@ -37,8 +38,11 @@ pipe_sprites = pygame.sprite.Group()
 sound_on = load_image("data/unmute.png", pygame)
 sound_off = load_image("data/mute.png", pygame)
 
-pipe_up = load_image('data/flappy_bird/pipe-green_up.png', pygame)
-pipe_down = load_image('data/flappy_bird/pipe-green_down.png', pygame)
+pipe_down_skins = {"green": load_image("data/flappy_bird/pipes/green/pipe-down.png", pygame),
+                   "red": load_image("data/flappy_bird/pipes/red/pipe-down.png", pygame)}
+pipe_up_skins = {"green": load_image("data/flappy_bird/pipes/green/pipe-up.png", pygame),
+                 "red": load_image("data/flappy_bird/pipes/red/pipe-up.png", pygame)}
+
 bird_down_skins = {"blue": load_image("data/flappy_bird/bird/blue/bird-midflap.png", pygame),
                    "red": load_image("data/flappy_bird/bird/red/bird-midflap.png", pygame),
                    "yellow": load_image("data/flappy_bird/bird/yellow/bird-midflap.png", pygame)}
@@ -49,14 +53,17 @@ bird_up_skins = {"blue": load_image("data/flappy_bird/bird/blue/bird-upflap.png"
 
 def restart_skins():
     global pipe_up, pipe_down, bird_down, bird_up
-    colour = random.choice(colour_list)
-    bird_down = bird_down_skins[colour]
-    bird_up = bird_up_skins[colour]
 
+    bird_colour = random.choice(bird_colour_list)
+    pipe_colour = random.choice(pipe_colour_list)
+
+    bird_down = bird_down_skins[bird_colour]
+    bird_up = bird_up_skins[bird_colour]
+    pipe_down = pipe_down_skins[pipe_colour]
+    pipe_up = pipe_up_skins[pipe_colour]
 
 
 class Pipe(pygame.sprite.Sprite):
-
     def __init__(self, radius=30, x=1000, y=300, place="bottom"):
         super().__init__(pipe_sprites)
         self.gened_next = False
