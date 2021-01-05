@@ -46,7 +46,7 @@ class Button:
         self.current_clr = list(inactive_clr)
         self.inactive_clr = inactive_clr
         self.active_clr = active_clr
-        self.diff_clr = [i - k >= 0 for i, k in zip(active_clr, inactive_clr)]
+        self.diff_clr = [(i - k) // 10 for i, k in zip(active_clr, inactive_clr)]
 
     def draw(self, x, y, message, action=None, font_size=50, cmd=None, arg=None, args=None):
         mouse = self.pygame.mouse.get_pos()
@@ -54,10 +54,10 @@ class Button:
 
         if x < mouse[0] < x + self.width and y < mouse[1] < y + self.height:
             for i in range(len(self.current_clr)):
-                if self.diff_clr[i]:
-                    self.current_clr[i] = min(self.active_clr[i], self.current_clr[i] + 2)
+                if self.diff_clr[i] >= 0:
+                    self.current_clr[i] = min(self.active_clr[i], self.current_clr[i] + self.diff_clr[i])
                 else:
-                    self.current_clr[i] = max(self.active_clr[i], self.current_clr[i] - 2)
+                    self.current_clr[i] = max(self.active_clr[i], self.current_clr[i] + self.diff_clr[i])
 
             self.pygame.draw.rect(self.screen, self.current_clr, (x, y, self.width, self.height))
 
@@ -75,10 +75,10 @@ class Button:
                     return cmd
         else:
             for i in range(len(self.current_clr)):
-                if self.diff_clr[i]:
-                    self.current_clr[i] = max(self.inactive_clr[i], self.current_clr[i] - 2)
+                if self.diff_clr[i] >= 0:
+                    self.current_clr[i] = max(self.inactive_clr[i], self.current_clr[i] - self.diff_clr[i])
                 else:
-                    self.current_clr[i] = min(self.inactive_clr[i], self.current_clr[i] + 2)
+                    self.current_clr[i] = min(self.inactive_clr[i], self.current_clr[i] - self.diff_clr[i])
 
             self.pygame.draw.rect(self.screen, self.current_clr, (x, y, self.width, self.height))
         print_text(message, x + 10, y + 10, self.screen, self.pygame, font_size=font_size)
