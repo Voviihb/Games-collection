@@ -172,9 +172,8 @@ class Bird(pygame.sprite.Sprite):
                 self.jumped = True
 
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
-            # print("Game over")
-            # sys.exit()
-            pass
+            print("Game over")
+            sys.exit()
 
 
 def flappy_bird(music_on_imported):
