@@ -54,7 +54,6 @@ def restart_skins():
     bird_up = bird_up_skins[colour]
 
 
-
 class Pipe(pygame.sprite.Sprite):
 
     def __init__(self, radius=30, x=1000, y=300, place="bottom"):
