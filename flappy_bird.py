@@ -52,8 +52,6 @@ class Pipe(pygame.sprite.Sprite):
             self.rect.x = x
             self.rect.y = HEIGHT - y
         if place == "top":
-            #self.image = pygame.Surface([50, HEIGHT - y - 200])
-            #self.rect = pygame.Rect(x, 0, 50, HEIGHT - y - 200)
             self.image = pipe_up
             self.rect = pipe_up.get_rect()
             self.rect.x = x
@@ -158,7 +156,6 @@ def flappy_bird(music_on_imported):
     pygame.display.set_caption("Сборник игр: Flappy bird")
     background = pygame.transform.scale(load_image('data/flappy_bird/background.png', pygame), (WIDTH, HEIGHT))
     base = pygame.transform.scale(load_image('data/flappy_bird/base.png', pygame), (1024, 70))
-
 
     floor_x_pos = 0
     Bird()
