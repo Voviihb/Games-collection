@@ -6,7 +6,7 @@ import time
 
 clock = pygame.time.Clock()
 
-colour_list = ["black", "red", "green", "blue"]
+colour_list = ["red", "yellow", "blue"]
 
 
 def pause_logo(IF_PLAYING, play_button, pause_button):
@@ -18,7 +18,7 @@ def pause_logo(IF_PLAYING, play_button, pause_button):
 
 def draw_floor(floor_pos, screen, base, pause=False):
     if not pause:
-        floor_pos -= 6/FPS*60
+        floor_pos -= 6 / FPS * 60
     screen.blit(base, (floor_pos, 705))
     screen.blit(base, (floor_pos + 1024, 705))
     if floor_pos <= -1024:
@@ -36,10 +36,23 @@ pipe_sprites = pygame.sprite.Group()
 
 sound_on = load_image("data/unmute.png", pygame)
 sound_off = load_image("data/mute.png", pygame)
+
 pipe_up = load_image('data/flappy_bird/pipe-green_up.png', pygame)
 pipe_down = load_image('data/flappy_bird/pipe-green_down.png', pygame)
-bird_down = load_image("data/flappy_bird/bluebird-midflap.png", pygame)
-bird_up = load_image("data/flappy_bird/bluebird-upflap.png", pygame)
+bird_down_skins = {"blue": load_image("data/flappy_bird/bird/blue/bird-midflap.png", pygame),
+                   "red": load_image("data/flappy_bird/bird/red/bird-midflap.png", pygame),
+                   "yellow": load_image("data/flappy_bird/bird/yellow/bird-midflap.png", pygame)}
+bird_up_skins = {"blue": load_image("data/flappy_bird/bird/blue/bird-upflap.png", pygame),
+                 "red": load_image("data/flappy_bird/bird/red/bird-upflap.png", pygame),
+                 "yellow": load_image("data/flappy_bird/bird/yellow/bird-upflap.png", pygame)}
+
+
+def restart_skins():
+    global pipe_up, pipe_down, bird_down, bird_up
+    colour = random.choice(colour_list)
+    bird_down = bird_down_skins[colour]
+    bird_up = bird_up_skins[colour]
+
 
 
 class Pipe(pygame.sprite.Sprite):
@@ -60,7 +73,7 @@ class Pipe(pygame.sprite.Sprite):
             self.rect.y = HEIGHT - y - 200 - 626
 
     def update(self, arg=None):
-        self.rect = self.rect.move(-6/FPS*60, 0)
+        self.rect = self.rect.move(-6 / FPS * 60, 0)
         global counter
         if self.rect[0] < 0 or arg == "kill":
             self.kill()
@@ -99,7 +112,7 @@ class Bird(pygame.sprite.Sprite):
         self.rect = bird_down.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
-        self.vy = 3/FPS*60
+        self.vy = 3 / FPS * 60
 
     def update(self, *args):
         if IF_PLAYING:
@@ -139,6 +152,7 @@ class Bird(pygame.sprite.Sprite):
 
 def flappy_bird(music_on_imported):
     global bird_sprite, floor_sprite, pipe_sprites, IF_PLAYING, counter
+    restart_skins()
 
     btns_top_coords = (0, 260), (0, 130)
     btns_floor_coords = [(0, 120), (650, 768)]
@@ -204,6 +218,7 @@ def flappy_bird(music_on_imported):
 
         if play_again_btn.draw(270, 10, "", font_size=70, cmd="again"):
             counter = 0
+            restart_skins()
             pipe_sprites.update("kill")
             bird_sprite.update("reset")
             y = random.randint(100, 300)
