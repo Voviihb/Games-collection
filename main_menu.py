@@ -34,7 +34,7 @@ def start_screen():
     font = pygame.font.Font(None, 50)
     text_coord = 30
     for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('black'))
+        string_rendered = font.render(line, True, pygame.Color('black'))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
@@ -54,7 +54,8 @@ def start_screen():
                 terminate()
         screen.blit(background, (0, 0))
         try:
-            music_on_local_sapper_flappy = start_flappy_bird.draw(300, 200, "Flappy bird", action=flappy_bird.flappy_bird,
+            music_on_local_sapper_flappy = start_flappy_bird.draw(300, 200, "Flappy bird",
+                                                                  action=flappy_bird.flappy_bird,
                                                                   font_size=70, arg=music_on)
             if music_on_local_sapper_flappy:
                 if music_on[1] != music_on_local_sapper_flappy[1]:
