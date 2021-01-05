@@ -5,8 +5,8 @@ import flappy_bird
 import minesweeper
 
 FPS = 50
-
-size = WIDTH, HEIGHT = 1024, 768
+BASEWIDTH, BASEHEIGHT = 1024, 768
+size = width, height = 1024, 768
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Сборник игр: главное меню")
 clock = pygame.time.Clock()
@@ -22,14 +22,14 @@ def terminate():
 
 
 def start_screen():
-    global music_on
+    global music_on, screen, size, width, height, BASEWIDTH, BASEWIDTH
 
     intro_text = ["СБОРНИК ИГР", "",
                   "Flappy bird,",
                   "Сапер,",
                   "Морской бой"]
     # Фон и постоянный текст
-    background = pygame.transform.scale(load_image('data/menu_image.jpg', pygame), (WIDTH, HEIGHT))
+    background = pygame.transform.scale(load_image('data/menu_image.jpg', pygame), (width, height))
     screen.blit(background, (0, 0))
     font = pygame.font.Font(None, 50)
     text_coord = 30
@@ -44,36 +44,53 @@ def start_screen():
 
     # Кнопки
     start_flappy_bird = Button(300, 70, screen, pygame)
-    start_sapper = Button(170, 70, screen, pygame)
+    start_minesweeper = Button(170, 70, screen, pygame)
     quit_button = Button(200, 70, screen, pygame, active_clr=(255, 0, 0))
     music_button = Button(100, 100, screen, pygame)
+
+    start_flappy_bird_coordinates = (300 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
+    start_minesweeper_coordinates = (700 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
+    quit_button_coordinates = (500 / BASEWIDTH) * width, (500 / BASEWIDTH) * width
+    music_button_coordinates = (10 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+            elif event.type == pygame.VIDEORESIZE:
+                size = width, height = event.w, event.h
+
+                if width < 800 or height < 600:
+                    screen = pygame.display.set_mode((800, 600), flags=pygame.RESIZABLE)
+                    width, height = 800, 600
+                background = pygame.transform.scale(background, (width, height))
+                start_flappy_bird_coordinates = (300 / BASEWIDTH) * width, (200 / BASEHEIGHT) * height
+                start_minesweeper_coordinates = (700 / BASEWIDTH) * width, (200 / BASEHEIGHT) * height
+                quit_button_coordinates = (500 / BASEWIDTH) * width, (500 / BASEHEIGHT) * height
+                music_button_coordinates = (10 / BASEWIDTH) * width, (658 / BASEHEIGHT) * height
+
         screen.blit(background, (0, 0))
         try:
-            music_on_local_minesweeper_flappy = start_flappy_bird.draw(300, 200, "Flappy bird",
+            music_on_local_minesweeper_flappy = start_flappy_bird.draw(start_flappy_bird_coordinates, "Flappy bird",
                                                                        action=flappy_bird.flappy_bird,
-                                                                       font_size=70, arg=music_on)
+                                                                       font_size=70, args=(music_on, ))
             if music_on_local_minesweeper_flappy:
                 if music_on[1] != music_on_local_minesweeper_flappy[1]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
 
-            music_on_local_minesweeper = start_sapper.draw(700, 200, "Сапер", action=minesweeper.minesweeper, font_size=70,
-                                                           arg=music_on)
+            music_on_local_minesweeper = start_minesweeper.draw(start_minesweeper_coordinates, "Сапер",
+                                                                action=minesweeper.minesweeper, font_size=70,
+                                                                args=(music_on, ))
             if music_on_local_minesweeper:
                 if music_on[1] != music_on_local_minesweeper[1]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
-        except Exception as e:
+        except ZeroDivisionError as e:
             print("Unknown Error. Write to developers.", e)
 
-        quit_button.draw(500, 500, "Выход", action=terminate, font_size=70)
-        a = music_button.draw(10, 658, image=music_on[0], action=music, font_size=70,
+        quit_button.draw(quit_button_coordinates, "Выход", action=terminate, font_size=70)
+        a = music_button.draw(music_button_coordinates, image=music_on[0], action=music, font_size=70,
                               args=(music_on, pygame, sound_on, sound_off))
         music_on = a if a else music_on
-        #screen.blit(*music_on)
         pygame.display.flip()
         clock.tick(60)
         clock.tick(FPS)
@@ -87,7 +104,7 @@ if __name__ == '__main__':
     pygame.mixer.music.set_volume(0.2)
     pygame.mixer.music.play(-1)
 
-    screen = pygame.display.set_mode(size)
+    screen = pygame.display.set_mode(size, flags=pygame.RESIZABLE)
     pygame.display.flip()
     start_screen()
     while pygame.event.wait().type != pygame.QUIT:

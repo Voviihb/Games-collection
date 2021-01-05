@@ -64,9 +64,11 @@ class Button:
         self.width = width
         self.height = height
 
-    def draw(self, x, y, message="", image=None, action=None, font_size=50, cmd=None, arg=None, args=None):
+    def draw(self, pos: tuple, message="", image=None, action=None, font_size=50, cmd=None, args=None):
         mouse = self.pygame.mouse.get_pos()
         click = self.pygame.mouse.get_pressed()
+
+        x, y = pos[0], pos[1]
 
         rh = self.height // 3
         MiddleRectSize = (self.width, self.height - rh * 2)
@@ -108,10 +110,11 @@ class Button:
                 self.pygame.mixer.Sound.play(self.btn_sound)
                 self.pygame.time.delay(50)
                 if action:
-                    if arg:
-                        return action(arg)
-                    elif args:
-                        return action(*args)
+                    if args:
+                        if len(args) == 1:
+                            return action(args[0])
+                        else:
+                            return action(*args)
                     else:
                         action()
                 if cmd:
