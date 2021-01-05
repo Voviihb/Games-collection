@@ -30,6 +30,7 @@ counter = 0
 FPS = 30
 WIDTH, HEIGHT = 1024, 768
 IF_PLAYING = True
+RESTARTINGTICK = 4000
 bird_sprite = pygame.sprite.Group()
 floor_sprite = pygame.sprite.Group()
 pipe_sprites = pygame.sprite.Group()
@@ -150,7 +151,7 @@ class Bird(pygame.sprite.Sprite):
 
 
 def flappy_bird(music_on_imported):
-    global bird_sprite, floor_sprite, pipe_sprites, IF_PLAYING, counter
+    global bird_sprite, floor_sprite, pipe_sprites, IF_PLAYING, RESTARTINGTICK, counter
     restart_skins()
 
     btns_top_coords = (0, 260), (0, 130)
@@ -216,6 +217,8 @@ def flappy_bird(music_on_imported):
             IF_PLAYING = not IF_PLAYING
 
         if play_again_btn.draw(270, 10, "", font_size=70, cmd="again"):
+            RESTARTINGTICK = 0
+            IF_PLAYING = True
             counter = 0
             restart_skins()
             pipe_sprites.update("kill")
@@ -225,12 +228,16 @@ def flappy_bird(music_on_imported):
             Pipe(y=y, place="top")
             print("restarted")
 
-        if IF_PLAYING:
-            bird_sprite.update()
-            pipe_sprites.update()
-            floor_x_pos = draw_floor(floor_x_pos, screen, base)  # перемещение пола
+        if RESTARTINGTICK < 4000:
+            print_text(f"{int(3999 - RESTARTINGTICK) // 1000}", WIDTH // 2, HEIGHT // 2, screen=screen, pygame=pygame,
+                       font_size=100)
         else:
-            floor_x_pos = draw_floor(floor_x_pos, screen, base, pause=True)
+            if IF_PLAYING:
+                bird_sprite.update()
+                pipe_sprites.update()
+                floor_x_pos = draw_floor(floor_x_pos, screen, base)  # перемещение пола
+            else:
+                floor_x_pos = draw_floor(floor_x_pos, screen, base, pause=True)
 
         if counter < 0:
             print_text("0", 450, 50, screen=screen, pygame=pygame, font_size=100)
@@ -247,7 +254,8 @@ def flappy_bird(music_on_imported):
 
         screen.blit(*pause_logo(IF_PLAYING, play_button, pause_button))
 
-        clock.tick(FPS)
+        a = clock.tick(FPS)
+        RESTARTINGTICK += a if RESTARTINGTICK < 4000 else 0
 
 
 if __name__ == '__main__':
