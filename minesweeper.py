@@ -5,6 +5,8 @@ from scripts import load_image, render_text, to_main_menu_button, Button, music,
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
+BASEWIDTH, BASEHEIGHT = 1024, 768
+size = width, height = 1024, 768
 
 sound_on = load_image("data/unmute.png", pygame)
 sound_off = load_image("data/mute.png", pygame)
@@ -23,6 +25,14 @@ tile_images = {
     'marked': load_image('data/minesweeper/flagged.png', pygame),
     'empty': load_image('data/minesweeper/facingDown.png', pygame)
 }
+
+
+def calc_x(value: int) -> int:
+    return int((value / BASEWIDTH) * width)
+
+
+def calc_y(value: int) -> int:
+    return int((value / BASEHEIGHT) * height)
 
 
 class Tile(pygame.sprite.Sprite):
@@ -263,7 +273,7 @@ def minesweeper(music_on_imported):
     music_on = sound_on, (30, 683)
     if music_on_imported[1] != music_on[1]:
         music_on = music(music_on, pygame, sound_on, sound_off)
-    screen = pygame.display.set_mode((1024, 768))
+    screen = pygame.display.set_mode((1024, 768), pygame.RESIZABLE)
     FPS = 60
     pygame.display.set_caption("Сборник игр: Сапер")
     screen.fill((0, 0, 0))
@@ -280,6 +290,10 @@ def minesweeper(music_on_imported):
     board.set_view(10, 10, 35)
     running = True
 
+    to_main_menu_local_coordinates = calc_x(890), calc_y(640)
+    play_again_but_coordinates = calc_x(700), calc_y(640)
+    music_button_coordinates = calc_x(10), calc_y(658)
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -295,20 +309,25 @@ def minesweeper(music_on_imported):
                         board.mark_mine(event.pos)
                         if board.win():
                             board.lost = True
+            elif event.type == pygame.VIDEORESIZE:
+                to_main_menu_local_coordinates = calc_x(890), calc_y(640)
+                play_again_but_coordinates = calc_x(700), calc_y(640)
+                music_button_coordinates = calc_x(10), calc_y(658)
 
         screen.fill((187, 187, 187))
         all_sprites.draw(screen)
         board.render(screen)
 
-        if to_main_menu_local.draw(890, 640, image=close_button, font_size=70, cmd="close"):
+        if to_main_menu_local.draw(to_main_menu_local_coordinates, image=close_button, font_size=70, cmd="close"):
             return music_on
 
-        if play_again_but.draw(700, 640, image=restart_button, font_size=70, cmd="again"):
+        if play_again_but.draw(play_again_but_coordinates, image=restart_button, font_size=70, cmd="again"):
             board.restart()
 
-        #screen.blit(close_button, (900, 650))
-        #screen.blit(restart_button, (700, 640))
-        a = music_button.draw(10, 658, "", action=music, font_size=70, args=(music_on, pygame, sound_on, sound_off))
+        # screen.blit(close_button, (900, 650))
+        # screen.blit(restart_button, (700, 640))
+        a = music_button.draw(music_button_coordinates, "", action=music, font_size=70,
+                              args=(music_on, pygame, sound_on, sound_off))
 
         if a:
             music_on = a
@@ -353,7 +372,7 @@ def start_screen(screen, FPS):
     font = pygame.font.Font(None, 30)
     text_coord = 50
     for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('black'))
+        string_rendered = font.render(line, True, pygame.Color('black'))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
@@ -391,5 +410,4 @@ def start_screen(screen, FPS):
 if __name__ == '__main__':
     pygame.init()
     pygame.display.set_caption('Сапер beta 0.2')
-    size = width, height = 800, 600
     minesweeper((sound_on, (30, 683)))

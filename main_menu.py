@@ -84,7 +84,7 @@ def start_screen():
             if music_on_local_minesweeper:
                 if music_on[1] != music_on_local_minesweeper[1]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
-        except ZeroDivisionError as e:
+        except Exception as e:
             print("Unknown Error. Write to developers.", e)
 
         quit_button.draw(quit_button_coordinates, "Выход", action=terminate, font_size=70)
