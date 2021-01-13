@@ -176,7 +176,7 @@ class Bird(pygame.sprite.Sprite):
             sys.exit()
 
 
-def flappy_bird(music_on_imported):
+def flappy_bird(music_on_imported, screen):
     global bird_sprite, floor_sprite, pipe_sprites, IF_PLAYING, RESTARTINGTICK, counter
     global width, height
     restart_skins()

@@ -15,6 +15,9 @@ sound_on = load_image("data/unmute.png", pygame)
 sound_off = load_image("data/mute.png", pygame)
 music_on = (sound_on, (30, 683))
 
+SCREEN_SIZES = [[1024, 768], [800, 600]]
+SCREEN_SIZES_LETTERS = ["S", "B"]
+
 
 def terminate():
     pygame.quit()
@@ -47,11 +50,16 @@ def start_screen():
     start_minesweeper = Button(170, 70, screen, pygame)
     quit_button = Button(200, 70, screen, pygame, active_clr=(255, 0, 0))
     music_button = Button(100, 100, screen, pygame)
+    screen_size_button = Button(100, 100, screen, pygame)
 
     start_flappy_bird_coordinates = (300 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
     start_minesweeper_coordinates = (700 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
     quit_button_coordinates = (500 / BASEWIDTH) * width, (500 / BASEWIDTH) * width
     music_button_coordinates = (10 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
+    screen_size_button_coordinates = (150 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
+
+    size_counter = 2
+    size_counter2 = 0
 
     while True:
         for event in pygame.event.get():
@@ -68,19 +76,20 @@ def start_screen():
                 start_minesweeper_coordinates = (700 / BASEWIDTH) * width, (200 / BASEHEIGHT) * height
                 quit_button_coordinates = (500 / BASEWIDTH) * width, (500 / BASEHEIGHT) * height
                 music_button_coordinates = (10 / BASEWIDTH) * width, (658 / BASEHEIGHT) * height
+                screen_size_button_coordinates = (150 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
 
         screen.blit(background, (0, 0))
         try:
             music_on_local_minesweeper_flappy = start_flappy_bird.draw(start_flappy_bird_coordinates, "Flappy bird",
                                                                        action=flappy_bird.flappy_bird,
-                                                                       font_size=70, args=(music_on, ))
+                                                                       font_size=70, args=(music_on, screen))
             if music_on_local_minesweeper_flappy:
                 if music_on[1] != music_on_local_minesweeper_flappy[1]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
 
             music_on_local_minesweeper = start_minesweeper.draw(start_minesweeper_coordinates, "Сапер",
                                                                 action=minesweeper.minesweeper, font_size=70,
-                                                                args=(music_on, ))
+                                                                args=(music_on,))
             if music_on_local_minesweeper:
                 if music_on[1] != music_on_local_minesweeper[1]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
@@ -91,6 +100,22 @@ def start_screen():
         a = music_button.draw(music_button_coordinates, image=music_on[0], action=music, font_size=70,
                               args=(music_on, pygame, sound_on, sound_off))
         music_on = a if a else music_on
+
+        sz_s = screen_size_button.draw(screen_size_button_coordinates, SCREEN_SIZES_LETTERS[size_counter % 2], action=pygame.display.set_mode,
+                                       args=(SCREEN_SIZES[size_counter % 2],))
+        if sz_s:
+            if size_counter2 % 2 == 0:
+                size_counter += 1
+                width, height = SCREEN_SIZES[size_counter % 2]
+                screen = pygame.display.set_mode((width, height), flags=pygame.RESIZABLE)
+                start_flappy_bird_coordinates = (300 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
+                start_minesweeper_coordinates = (700 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
+                quit_button_coordinates = (500 / BASEWIDTH) * width, (500 / BASEWIDTH) * width
+                music_button_coordinates = (10 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
+                screen_size_button_coordinates = (150 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
+
+                print(size_counter)
+
         pygame.display.flip()
         clock.tick(60)
         clock.tick(FPS)
