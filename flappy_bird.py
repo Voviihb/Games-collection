@@ -8,6 +8,8 @@ clock = pygame.time.Clock()
 
 bird_colour_list = ["red", "yellow", "blue"]
 pipe_colour_list = ["green", "red"]
+SCREEN_SIZES = [[1024, 768], [800, 600]]
+SCREEN_SIZES_LETTERS = ["S", "B"]
 
 
 def pause_logo(IF_PLAYING, play_button, pause_button):
@@ -176,7 +178,8 @@ class Bird(pygame.sprite.Sprite):
             sys.exit()
 
 
-def flappy_bird(music_on_imported, screen):
+def flappy_bird(music_on_imported, screen, size_counter):
+    print(size_counter)
     global bird_sprite, floor_sprite, pipe_sprites, IF_PLAYING, RESTARTINGTICK, counter
     global width, height
     restart_skins()
@@ -197,7 +200,9 @@ def flappy_bird(music_on_imported, screen):
     floor_sprite = pygame.sprite.Group()
     pipe_sprites = pygame.sprite.Group()
 
-    screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
+    width, height = SCREEN_SIZES[size_counter % 2]
+
+    screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Сборник игр: Flappy bird")
     background = pygame.transform.scale(load_image('data/flappy_bird/background.png', pygame), (width, height))
     base = pygame.transform.scale(load_image('data/flappy_bird/base.png', pygame), (calc_x(1024), calc_y(70)))
@@ -216,6 +221,7 @@ def flappy_bird(music_on_imported, screen):
     pause_local = pause_button_func(screen, pygame)
     music_button = Button(100, 100, screen, pygame)
     play_again_btn = play_again_button(screen, pygame)
+    screen_size_button = Button(100, 100, screen, pygame)
 
     counter = 0
 
@@ -227,6 +233,7 @@ def flappy_bird(music_on_imported, screen):
     pause_local_coordinates = calc_x(140), calc_y(10)
     to_main_menu_local_coordinates = calc_x(10), calc_y(10)
     music_button_coordinates = calc_x(10), calc_y(658)
+    screen_size_button_coordinates = calc_x(150), calc_y(658)
 
     while True:
         for event in pygame.event.get():
@@ -261,7 +268,7 @@ def flappy_bird(music_on_imported, screen):
         pipe_sprites.draw(screen)
         if to_main_menu_local.draw(to_main_menu_local_coordinates, image=close_button, font_size=70, cmd="close"):
             bird_sprite.update("kill")
-            return music_on
+            return music_on, size_counter
 
         if pause_local.draw(pause_local_coordinates, image=pause_button if IF_PLAYING else play_button, font_size=70,
                             cmd="pause"):
@@ -297,9 +304,26 @@ def flappy_bird(music_on_imported, screen):
         if a:
             music_on = a
 
-        # screen.blit(close_button, (20, 20))
-        # screen.blit(restart_button, (268, 10))
-        # screen.blit(*music_on)
+        sz_s = screen_size_button.draw(screen_size_button_coordinates, SCREEN_SIZES_LETTERS[size_counter % 2],
+                                       action=pygame.display.set_mode,
+                                       args=(SCREEN_SIZES[size_counter % 2],))
+        if sz_s:
+            size_counter += 1
+            width, height = SCREEN_SIZES[size_counter % 2]
+            screen = pygame.display.set_mode((width, height))
+            play_again_coordinates = calc_x(270), calc_y(10)
+            pause_local_coordinates = calc_x(140), calc_y(10)
+            to_main_menu_local_coordinates = calc_x(10), calc_y(10)
+            music_button_coordinates = calc_x(10), calc_y(658)
+            background = pygame.transform.scale(background, (width, height))
+            base = pygame.transform.scale(base, (calc_x(1024), calc_y(70)))
+            screen_size_button_coordinates = (calc_x(150), calc_y(658))
+            b1.SetCoordinates(x5, y5, width - x5, y5)
+            b2.SetCoordinates(calc_x(70), height - calc_y(70), width - calc_x(70), height - calc_y(70))
+            b3.SetCoordinates(x5, y5, x5, height - y5)
+            b4.SetCoordinates(width - x5, y5, width - x5, height - y5)
+
+            print(size_counter)
 
         a = clock.tick(FPS)
         RESTARTINGTICK += a if RESTARTINGTICK < 4000 else 0
@@ -307,4 +331,4 @@ def flappy_bird(music_on_imported, screen):
 
 if __name__ == '__main__':
     pygame.init()
-    flappy_bird((sound_on, (30, 683)))
+    flappy_bird(sound_on, (30, 683))
