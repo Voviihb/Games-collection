@@ -107,9 +107,8 @@ def start_screen():
             print("Unknown Error. Write to developers.", e)
 
         quit_button.draw(quit_button_coordinates, "Выход", action=terminate, font_size=70)
-        a = music_button.draw(music_button_coordinates, image=music_on[0], action=music, font_size=70,
-                              args=(music_on, pygame, sound_on, sound_off))
-        music_on = a if a else music_on
+        music_on = music_button.draw(music_button_coordinates, image=music_on[0], action=music, font_size=70,
+                              args=(music_on, pygame, sound_on, sound_off)) or music_on
 
         sz_s = screen_size_button.draw(screen_size_button_coordinates, SCREEN_SIZES_LETTERS[size_counter % 2],
                                        action=pygame.display.set_mode,
@@ -125,8 +124,6 @@ def start_screen():
                 quit_button_coordinates = (500 / BASEWIDTH) * width, (500 / BASEWIDTH) * width
                 music_button_coordinates = (10 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
                 screen_size_button_coordinates = (150 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
-
-                print(size_counter)
 
         pygame.display.flip()
         clock.tick(60)
