@@ -58,7 +58,8 @@ class Button:
         self.current_clr = list(inactive_clr)
         self.inactive_clr = inactive_clr
         self.active_clr = active_clr
-        self.diff_clr = [(i - k) // 10 for i, k in zip(active_clr, inactive_clr)]
+        self.diff_clr = [(i - k) // 8 for i, k in zip(active_clr, inactive_clr)]
+        self.last_ret = False
 
     def SetSize(self, width, height):
         self.width = width
@@ -117,8 +118,12 @@ class Button:
                             return action(*args)
                     else:
                         action()
-                if cmd:
+                if cmd and not self.last_ret:
+                    self.last_ret = cmd
                     return cmd
+                return False
+            else:
+                self.last_ret = False
         else:
             for i in range(len(self.current_clr)):
                 if self.diff_clr[i] >= 0:
