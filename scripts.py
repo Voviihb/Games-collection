@@ -133,22 +133,21 @@ class Button:
 
 
 def to_main_menu_button(screen, pygame):
-    return Button(120, 120, screen, pygame, active_clr=(255, 0, 0))
+    return Button(100, 100, screen, pygame, active_clr=(255, 0, 0))
 
 
 def pause_button_func(screen, pygame):
-    return Button(120, 120, screen, pygame, active_clr=(255, 0, 0))
+    return Button(100, 100, screen, pygame, active_clr=(255, 0, 0))
 
 
 def play_again_button(screen, pygame):
-    return Button(120, 120, screen, pygame, active_clr=(255, 0, 0))
+    return Button(100, 100, screen, pygame, active_clr=(255, 0, 0))
 
 
-def music(music_on, pygame, sound_on, sound_off):
+def music(music_on, pygame, sound_on, sound_off, coords=(30, 682), redraw=False):
     if sound_off in music_on:
         pygame.mixer.music.play()
-        return sound_on, (30, 683)
+        return sound_on, (coords[0], coords[1])
     else:
         pygame.mixer.music.stop()
-        return sound_off, (30, 682)
-
+        return sound_off, (coords[0], coords[1] + 1)
