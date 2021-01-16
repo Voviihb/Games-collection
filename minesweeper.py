@@ -8,6 +8,9 @@ tiles_group = pygame.sprite.Group()
 BASEWIDTH, BASEHEIGHT = 1024, 768
 size = width, height = 1024, 768
 
+SCREEN_SIZES = [[1024, 768], [800, 600]]
+SCREEN_SIZES_LETTERS = ["S", "B"]
+
 sound_on = load_image("data/unmute.png", pygame)
 sound_off = load_image("data/mute.png", pygame)
 
@@ -25,6 +28,14 @@ tile_images = {
     'marked': load_image('data/minesweeper/flagged.png', pygame),
     'empty': load_image('data/minesweeper/facingDown.png', pygame)
 }
+
+
+def resize_minesweeper():
+    to_main_menu_local_coordinates = calc_x(890), calc_y(640)
+    play_again_but_coordinates = calc_x(700), calc_y(640)
+    music_button_coordinates = calc_x(10), calc_y(658)
+    screen_size_button_coordinates = calc_x(150), calc_y(658)
+    return to_main_menu_local_coordinates, play_again_but_coordinates, music_button_coordinates, screen_size_button_coordinates
 
 
 def calc_x(value: int) -> int:
@@ -269,30 +280,33 @@ class Minesweeper(Board):
         return False
 
 
-def minesweeper(music_on_imported):
-    music_on = sound_on, (30, 683)
+def minesweeper(music_on_imported, size_counter):
+    global width, height, start_time
+
+    width, height = SCREEN_SIZES[size_counter % 2]
+    music_on = sound_on, (30, calc_x(683))
     if music_on_imported[1] != music_on[1]:
         music_on = music(music_on, pygame, sound_on, sound_off)
-    screen = pygame.display.set_mode((1024, 768), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((width, height))
     FPS = 60
     pygame.display.set_caption("Сборник игр: Сапер")
     screen.fill((0, 0, 0))
     pygame.display.flip()
     start_screen(screen, FPS)
+
     close_button = load_image("data/close_button.png", pygame)
     restart_button = load_image("data/restart_button.png", pygame)
     music_button = Button(100, 100, screen, pygame)
     to_main_menu_local = to_main_menu_button(screen, pygame)
     play_again_but = play_again_button(screen, pygame)
-    global start_time
+    screen_size_button = Button(100, 100, screen, pygame)
+
     start_time = time.time()
     board = Minesweeper(g_mode)
     board.set_view(10, 10, 35)
     running = True
 
-    to_main_menu_local_coordinates = calc_x(890), calc_y(640)
-    play_again_but_coordinates = calc_x(700), calc_y(640)
-    music_button_coordinates = calc_x(10), calc_y(658)
+    to_main_menu_local_coordinates, play_again_but_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_minesweeper()
 
     while running:
         for event in pygame.event.get():
@@ -310,16 +324,14 @@ def minesweeper(music_on_imported):
                         if board.win():
                             board.lost = True
             elif event.type == pygame.VIDEORESIZE:
-                to_main_menu_local_coordinates = calc_x(890), calc_y(640)
-                play_again_but_coordinates = calc_x(700), calc_y(640)
-                music_button_coordinates = calc_x(10), calc_y(658)
+                to_main_menu_local_coordinates, play_again_but_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_minesweeper()
 
         screen.fill((187, 187, 187))
         all_sprites.draw(screen)
         board.render(screen)
 
         if to_main_menu_local.draw(to_main_menu_local_coordinates, image=close_button, font_size=70, cmd="close"):
-            return music_on
+            return music_on, size_counter
 
         if play_again_but.draw(play_again_but_coordinates, image=restart_button, font_size=70, cmd="again"):
             board.restart()
@@ -328,6 +340,16 @@ def minesweeper(music_on_imported):
         # screen.blit(restart_button, (700, 640))
         a = music_button.draw(music_button_coordinates, "", action=music, font_size=70,
                               args=(music_on, pygame, sound_on, sound_off))
+
+        sz_s = screen_size_button.draw(screen_size_button_coordinates, SCREEN_SIZES_LETTERS[size_counter % 2],
+                                       action=pygame.display.set_mode,
+                                       args=(SCREEN_SIZES[size_counter % 2],))
+        if sz_s:
+            size_counter += 1
+            width, height = SCREEN_SIZES[size_counter % 2]
+            screen = pygame.display.set_mode((width, height))
+            to_main_menu_local_coordinates, play_again_but_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_minesweeper()
+
 
         if a:
             music_on = a
@@ -367,16 +389,23 @@ def start_screen(screen, FPS):
                   "Для выбора нажмите соответствующую цифру на клавиатуре"]
 
     fullname = os.path.join('data/minesweeper', 'fon.jpg')
-    fon = pygame.transform.scale(load_image(fullname, pygame), (1024, 768))
+    fon = pygame.transform.scale(load_image(fullname, pygame), (width, height))
     screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
-    text_coord = 50
+    if height > 600:
+        font = pygame.font.Font(None, 30)
+        str_height = 10
+        text_coord = 30
+    else:
+        font = pygame.font.Font(None, 26)
+        str_height = 9
+        text_coord = 20
+
     for line in intro_text:
         string_rendered = font.render(line, True, pygame.Color('black'))
         intro_rect = string_rendered.get_rect()
-        text_coord += 10
+        text_coord += str_height
         intro_rect.top = text_coord
-        intro_rect.x = 10
+        intro_rect.x = str_height
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 

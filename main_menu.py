@@ -96,9 +96,15 @@ def start_screen():
 
             music_on_local_minesweeper = start_minesweeper.draw(start_minesweeper_coordinates, "Сапер",
                                                                 action=minesweeper.minesweeper, font_size=70,
-                                                                args=(music_on,))
+                                                                args=(music_on, size_counter))
             if music_on_local_minesweeper:
-                if music_on[1] != music_on_local_minesweeper[1]:
+                size_counter = music_on_local_minesweeper[1]
+                size_counter = music_on_local_minesweeper[1]
+                width, height = SCREEN_SIZES[size_counter % 2]
+                screen = pygame.display.set_mode((width, height))
+                background = pygame.transform.scale(background, (width, height))
+                start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_main()
+                if music_on[1] != music_on_local_minesweeper[0][1]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
         except Exception as e:
             print("Unknown Error. Write to developers.", e)
@@ -131,7 +137,7 @@ if __name__ == '__main__':
     pygame.mixer.music.set_volume(0.2)
     pygame.mixer.music.play(-1)
 
-    screen = pygame.display.set_mode(size, flags=pygame.RESIZABLE)
+    screen = pygame.display.set_mode(size)
     pygame.display.flip()
     start_screen()
     while pygame.event.wait().type != pygame.QUIT:
