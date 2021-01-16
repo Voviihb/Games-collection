@@ -75,6 +75,15 @@ def restart_skins():
     pipe_up = pipe_up_skins[pipe_colour]
 
 
+def resize_flappy():
+    play_again_coordinates = calc_x(270), calc_y(10)
+    pause_local_coordinates = calc_x(140), calc_y(10)
+    to_main_menu_local_coordinates = calc_x(10), calc_y(10)
+    music_button_coordinates = calc_x(10), calc_y(658)
+    screen_size_button_coordinates = calc_x(150), calc_y(658)
+    return play_again_coordinates, pause_local_coordinates, to_main_menu_local_coordinates, music_button_coordinates, screen_size_button_coordinates
+
+
 class Pipe(pygame.sprite.Sprite):
     def __init__(self, x=calc_x(1000), y=calc_y(300), place="bottom"):
         super().__init__(pipe_sprites)
@@ -229,11 +238,7 @@ def flappy_bird(music_on_imported, screen, size_counter):
     Pipe(y=y, place="bottom")
     Pipe(y=y, place="top")
 
-    play_again_coordinates = calc_x(270), calc_y(10)
-    pause_local_coordinates = calc_x(140), calc_y(10)
-    to_main_menu_local_coordinates = calc_x(10), calc_y(10)
-    music_button_coordinates = calc_x(10), calc_y(658)
-    screen_size_button_coordinates = calc_x(150), calc_y(658)
+    play_again_coordinates, pause_local_coordinates, to_main_menu_local_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_flappy()
 
     while True:
         for event in pygame.event.get():
@@ -250,12 +255,8 @@ def flappy_bird(music_on_imported, screen, size_counter):
                         bird_sprite.update(event)
             elif event.type == pygame.VIDEORESIZE:
                 width, height = event.w, event.h
-                play_again_coordinates = calc_x(270), calc_y(10)
-                pause_local_coordinates = calc_x(140), calc_y(10)
-                to_main_menu_local_coordinates = calc_x(10), calc_y(10)
-                music_button_coordinates = calc_x(10), calc_y(658)
+                play_again_coordinates, pause_local_coordinates, to_main_menu_local_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_flappy()
                 background = pygame.transform.scale(background, (width, height))
-                base = pygame.transform.scale(base, (calc_x(1024), calc_y(70)))
 
                 b1.SetCoordinates(x5, y5, width - x5, y5)
                 b2.SetCoordinates(calc_x(70), height - calc_y(70), width - calc_x(70), height - calc_y(70))
@@ -311,13 +312,9 @@ def flappy_bird(music_on_imported, screen, size_counter):
             size_counter += 1
             width, height = SCREEN_SIZES[size_counter % 2]
             screen = pygame.display.set_mode((width, height))
-            play_again_coordinates = calc_x(270), calc_y(10)
-            pause_local_coordinates = calc_x(140), calc_y(10)
-            to_main_menu_local_coordinates = calc_x(10), calc_y(10)
-            music_button_coordinates = calc_x(10), calc_y(658)
             background = pygame.transform.scale(background, (width, height))
             base = pygame.transform.scale(base, (calc_x(1024), calc_y(70)))
-            screen_size_button_coordinates = (calc_x(150), calc_y(658))
+            play_again_coordinates, pause_local_coordinates, to_main_menu_local_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_flappy()
             b1.SetCoordinates(x5, y5, width - x5, y5)
             b2.SetCoordinates(calc_x(70), height - calc_y(70), width - calc_x(70), height - calc_y(70))
             b3.SetCoordinates(x5, y5, x5, height - y5)

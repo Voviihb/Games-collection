@@ -151,3 +151,4 @@ def music(music_on, pygame, sound_on, sound_off):
     else:
         pygame.mixer.music.stop()
         return sound_off, (30, 682)
+

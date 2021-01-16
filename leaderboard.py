@@ -2,6 +2,9 @@ import sqlite3
 import pygame
 import sys
 from scripts import load_image, print_text_from_center, to_main_menu_button, Button, music, play_again_button
+import os
+
+print(os.environ.get( "USERNAME" ))
 
 
 class LeaderBoard:
