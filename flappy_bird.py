@@ -138,7 +138,7 @@ class Border(pygame.sprite.Sprite):
 
 
 class Bird(pygame.sprite.Sprite):
-    def __init__(self, radius=30, x=100, y=400):
+    def __init__(self, screen, radius=30, x=100, y=400):
         super().__init__(bird_sprite)
         self.radius = radius
         self.x = x
@@ -150,6 +150,7 @@ class Bird(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
         self.vy = 3 / FPS * 60
+        self.screen = screen
 
     def update(self, *args):
         if IF_PLAYING:
@@ -183,8 +184,8 @@ class Bird(pygame.sprite.Sprite):
                 self.jumped = True
 
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
+            game_over(self.screen)
             print("Game over")
-            sys.exit()
 
 
 def flappy_bird(music_on_imported, screen, size_counter):
@@ -217,7 +218,7 @@ def flappy_bird(music_on_imported, screen, size_counter):
     base = pygame.transform.scale(load_image('data/flappy_bird/base.png', pygame), (calc_x(1024), calc_y(70)))
 
     floor_x_pos = 0
-    Bird()
+    Bird(screen)
 
     x5, y5 = calc_x(5), calc_y(5)
 
@@ -324,6 +325,15 @@ def flappy_bird(music_on_imported, screen, size_counter):
 
         a = clock.tick(FPS)
         RESTARTINGTICK += a if RESTARTINGTICK < 4000 else 0
+
+
+def game_over(screen):
+    screen.blit("black", (0, 0))
+    while True:
+        pass
+
+        pygame.display.flip()
+        clock.tick(FPS)
 
 
 if __name__ == '__main__':
