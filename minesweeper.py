@@ -104,6 +104,7 @@ class Board:
 
 class Minesweeper(Board):
     def __init__(self, mode=2, width=16, height=16, mines_count=40):
+        super().__init__(width, height)
         self.lost = False
         self.not_win = True
         self.cheat_mode = False
