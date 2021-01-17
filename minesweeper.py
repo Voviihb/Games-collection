@@ -1,4 +1,4 @@
-import pygame, time, sys, os
+import pygame, time, sys, os, datetime
 from random import randrange
 from scripts import load_image, render_text, to_main_menu_button, Button, music, play_again_button
 
@@ -276,6 +276,11 @@ class Minesweeper(Board):
                 e = int(time.time() - start_time)
                 self.total_time = '{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)
                 self.result_left_mines = self.mines_count - self.tagged_mines
+                nick = os.environ.get("USERNAME")
+                time_in_seconds = e
+                date = datetime.datetime.now()
+                game_mode = self.mode
+                print(nick, time_in_seconds, date, game_mode, sep="\n")
                 return True
         return False
 
@@ -438,4 +443,4 @@ def start_screen(screen, FPS):
 if __name__ == '__main__':
     pygame.init()
     pygame.display.set_caption('Сапер beta 0.2')
-    minesweeper((sound_on, (30, 683)))
+    minesweeper((sound_on, (30, 683)), 2)
