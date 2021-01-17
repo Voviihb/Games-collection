@@ -1,5 +1,6 @@
 import pygame, time, sys, os, datetime
 from random import randrange
+from leaderboard import LeaderBoard
 from scripts import load_image, render_text, to_main_menu_button, Button, music, play_again_button
 
 clock = pygame.time.Clock()
@@ -105,6 +106,9 @@ class Board:
 class Minesweeper(Board):
     def __init__(self, mode=2, width=16, height=16, mines_count=40):
         super().__init__(width, height)
+        self.lb = LeaderBoard("minesweeper",
+                              {"Nick": str, "Time Spent": datetime.time, "Playing date": datetime.datetime,
+                               "Mode": str})
         self.lost = False
         self.not_win = True
         self.cheat_mode = False
@@ -281,7 +285,8 @@ class Minesweeper(Board):
                 time_in_seconds = e
                 date = datetime.datetime.now()
                 game_mode = self.mode
-                print(nick, time_in_seconds, date, game_mode, sep="\n")
+                self.lb.AddRecord(nick, f"time('{time_in_seconds}', 'unixepoch')", "datetime('now')", game_mode)
+                # print(nick, time_in_seconds, date, game_mode, sep="\n")
                 return True
         return False
 
