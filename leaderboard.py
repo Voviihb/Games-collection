@@ -1,10 +1,8 @@
 import sqlite3
 import pygame
 import sys
+import datetime
 from scripts import load_image, print_text_from_center, to_main_menu_button, Button, music, play_again_button
-import os
-
-print(os.environ.get( "USERNAME" ))
 
 
 class LeaderBoard:
@@ -12,7 +10,8 @@ class LeaderBoard:
         self.gamename = GameName
         if TableStructure != dict():
             SqliteRequest = []
-            TypesDict = {int: "INTEGER", str: "STRING"}
+            TypesDict = {int: "INTEGER", str: "STRING", bool: "BOOL",
+                         datetime.datetime: "DATETIME", datetime.time: "TIME", datetime.date: "DATE"}
             for k, v in TableStructure.items():
                 SqliteRequest.append(f"{k} {TypesDict.get(v, '')}")
             self.Values = ", ".join(SqliteRequest)
@@ -24,7 +23,7 @@ class LeaderBoard:
     def AddRecord(self, *values):
         with sqlite3.connect("leaderboard.db") as connection:
             cursor = connection.cursor()
-            cursor.execute(f"""INSERT INTO {self.gamename} VALUES {values}""")
+            cursor.execute(fr"""INSERT INTO {self.gamename} VALUES {values}""".replace('"', ""))
 
     def _GetRecords(self):
         with sqlite3.connect("leaderboard.db") as connection:
@@ -45,7 +44,9 @@ class Board:
         self.MousePos = pygame.mouse.get_pos()
         self.ClickInScrollbarRect = False
 
-    def SetValues(self, values: list, columns: int, rows: int):
+    def SetValues(self, width: int, height: int, values: list, columns: int, rows: int):
+        self.width = width
+        self.height = height
         self.columns = columns
         self.rows = rows
         rows += 1
@@ -207,7 +208,7 @@ class LeaderBoardWindow(LeaderBoard):
                 names = [description[0] for description in cursor.description]
                 rows = len(self.records)
                 columns = len(self.records[0])
-                self.Board.SetValues([names] + self.records, columns, rows)
+                self.Board.SetValues(self.WIDTH - 80, min(rows * 20, 550), [names] + self.records, columns, rows)
 
 
 if __name__ == "__main__":
