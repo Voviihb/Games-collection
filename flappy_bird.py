@@ -192,7 +192,7 @@ class Bird(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
             global counter
             nick = os.environ.get("USERNAME")
-            self.lb.AddRecord(nick, "datetime('now')", counter)
+            self.lb.AddRecord(nick, "datetime('now', '+3 hours')", counter)
             pygame.event.post(kill_event)
             print("Game over")
 
@@ -210,8 +210,8 @@ def flappy_bird(music_on_imported, screen, size_counter=1):
     play_button = load_image("data/play_button.png", pygame)
     restart_button = load_image("data/restart_button.png", pygame)
 
-    music_on = sound_on, (30, 683)
-    if music_on_imported[1] != music_on[1]:
+    music_on = sound_on, (30, 683), True
+    if music_on_imported[2] != music_on[2]:
         music_on = music(music_on, pygame, sound_on, sound_off)
 
     bird_sprite = pygame.sprite.Group()
@@ -330,20 +330,10 @@ def flappy_bird(music_on_imported, screen, size_counter=1):
             b3.SetCoordinates(x5, y5, x5, height - y5)
             b4.SetCoordinates(width - x5, y5, width - x5, height - y5)
 
-            print(size_counter)
+
 
         a = clock.tick(FPS)
         RESTARTINGTICK += a if RESTARTINGTICK < 4000 else 0
-
-
-def game_over(screen):
-    print(222)
-    #screen.blit("black", (0, 0))
-    # while True:
-    # pass
-
-    # pygame.display.flip()
-    # clock.tick(FPS)
 
 
 if __name__ == '__main__':

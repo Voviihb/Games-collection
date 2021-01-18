@@ -14,7 +14,7 @@ clock = pygame.time.Clock()
 
 sound_on = load_image("data/unmute.png", pygame)
 sound_off = load_image("data/mute.png", pygame)
-music_on = (sound_on, (30, 683))
+music_on = (sound_on, (30, 683), True)
 
 SCREEN_SIZES = [[1024, 768], [800, 600]]
 SCREEN_SIZES_LETTERS = ["S", "B"]
@@ -88,17 +88,14 @@ def start_screen():
                                                            action=flappy_bird.flappy_bird,
                                                            font_size=70, args=(music_on, screen, size_counter))
             if music_on_local_flappy:
-                print(music_on_local_flappy)
                 size_counter = music_on_local_flappy[1]
                 width, height = SCREEN_SIZES[size_counter % 2]
                 screen = pygame.display.set_mode((width, height))
                 background = pygame.transform.scale(background, (width, height))
                 start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
-                #if music_on[1] != music_on_local_flappy[0][1]:
-                    #music_on = music(music_on, pygame, sound_on, sound_off)
-                music_on = music_on_local_flappy[0]
-                music_on = music(music_on, pygame, sound_on, sound_off)
-                music_on = music(music_on, pygame, sound_on, sound_off)
+
+                if music_on[2] != music_on_local_flappy[0][2]:
+                    music_on = music(music_on, pygame, sound_on, sound_off)
 
             music_on_local_minesweeper = start_minesweeper.draw(start_minesweeper_coordinates, "Сапер",
                                                                 action=minesweeper.minesweeper, font_size=70,
@@ -110,7 +107,7 @@ def start_screen():
                 screen = pygame.display.set_mode((width, height))
                 background = pygame.transform.scale(background, (width, height))
                 start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
-                if music_on[1] != music_on_local_minesweeper[0][1]:
+                if music_on[2] != music_on_local_minesweeper[0][2]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
         except Exception as e:
             print("Unknown Error. Write to developers.", e)

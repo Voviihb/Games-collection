@@ -147,7 +147,7 @@ def play_again_button(screen, pygame):
 def music(music_on, pygame, sound_on, sound_off, coords=(30, 682), redraw=False):
     if sound_off in music_on:
         pygame.mixer.music.play()
-        return sound_on, (coords[0], coords[1])
+        return sound_on, (coords[0], coords[1]), True
     else:
         pygame.mixer.music.stop()
-        return sound_off, (coords[0], coords[1] + 1)
+        return sound_off, (coords[0], coords[1] + 1), False

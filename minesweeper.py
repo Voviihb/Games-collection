@@ -285,7 +285,7 @@ class Minesweeper(Board):
                 time_in_seconds = e
                 date = datetime.datetime.now()
                 game_mode = self.mode
-                self.lb.AddRecord(nick, f"time('{time_in_seconds}', 'unixepoch')", "datetime('now')", game_mode)
+                self.lb.AddRecord(nick, f"time('{time_in_seconds}', 'unixepoch')", "datetime('now', '+3 hours')", game_mode)
                 # print(nick, time_in_seconds, date, game_mode, sep="\n")
                 return True
         return False
@@ -295,8 +295,8 @@ def minesweeper(music_on_imported, size_counter):
     global width, height, start_time
 
     width, height = SCREEN_SIZES[size_counter % 2]
-    music_on = sound_on, (calc_y(900), calc_x(500))
-    if music_on_imported[1] != music_on[1]:
+    music_on = sound_on, (calc_y(910), calc_x(507)), True
+    if music_on_imported[2] != music_on[2]:
         music_on = music(music_on, pygame, sound_on, sound_off, coords=(calc_y(910), calc_x(510)))
     screen = pygame.display.set_mode((width, height))
     FPS = 60
@@ -363,7 +363,7 @@ def minesweeper(music_on_imported, size_counter):
 
         if a:
             music_on = a
-        screen.blit(*music_on)
+        screen.blit(*music_on[:2])
 
         pygame.display.flip()
         if board.lost:
