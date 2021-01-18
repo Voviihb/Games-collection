@@ -3,6 +3,9 @@ import sys
 from scripts import load_image, Button, print_text, to_main_menu_button, pause_button_func, music, play_again_button
 import random
 import time
+from leaderboard import LeaderBoard
+import datetime
+import os
 
 clock = pygame.time.Clock()
 
@@ -151,6 +154,8 @@ class Bird(pygame.sprite.Sprite):
         self.rect.y = self.y
         self.vy = 3 / FPS * 60
         self.screen = screen
+        self.lb = LeaderBoard("flappybird",
+                              {"Nick": str, "Playing date": datetime.datetime, "Score": str})
 
     def update(self, *args):
         if IF_PLAYING:
@@ -184,6 +189,9 @@ class Bird(pygame.sprite.Sprite):
                 self.jumped = True
 
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
+            global counter
+            nick = os.environ.get("USERNAME")
+            self.lb.AddRecord(nick, "datetime('now')", counter)
             game_over(self.screen)
             print("Game over")
 
