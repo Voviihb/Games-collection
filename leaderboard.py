@@ -127,10 +127,10 @@ class Board:
 
 
 class LeaderBoardWindow(LeaderBoard):
-    def __init__(self):
+    def __init__(self, screen_size=(1024, 768)):
         super().__init__("", dict())
         self.FPS = 60
-        self.WIDTH, self.HEIGHT = 1024, 768
+        self.WIDTH, self.HEIGHT = screen_size
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT), pygame.RESIZABLE)
         pygame.display.set_caption("Сборник игр: Таблица рекордов")
         self.screen.fill((0, 0, 0))
@@ -209,6 +209,11 @@ class LeaderBoardWindow(LeaderBoard):
                 rows = len(self.records)
                 columns = len(self.records[0])
                 self.Board.SetValues(self.WIDTH - 80, min((rows + 1) * 20, 550), [names] + self.records, columns, rows)
+
+
+def open_leaderboard(pygame, screen_size):
+    board = LeaderBoardWindow(screen_size)
+    board.StartRender()
 
 
 if __name__ == "__main__":

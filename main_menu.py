@@ -3,6 +3,7 @@ import sys
 from scripts import load_image, Button, music
 import flappy_bird
 import minesweeper
+import leaderboard
 
 FPS = 50
 BASEWIDTH, BASEHEIGHT = 1024, 768
@@ -25,7 +26,8 @@ def resize_main():
     quit_button_coordinates = (450 / BASEWIDTH) * width, (500 / BASEWIDTH) * width
     music_button_coordinates = (10 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
     screen_size_button_coordinates = (150 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
-    return start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates
+    leaderboard_button_coordinates = (400 / BASEWIDTH) * width, (380 / BASEWIDTH) * width
+    return start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates
 
 
 def terminate():
@@ -60,8 +62,9 @@ def start_screen():
     quit_button = Button(200, 70, screen, pygame, active_clr=(255, 0, 0))
     music_button = Button(100, 100, screen, pygame)
     screen_size_button = Button(100, 100, screen, pygame)
+    leaderboard_button = Button(300, 70, screen, pygame)
 
-    start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_main()
+    start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
 
     size_counter = 2
     size_counter2 = 0
@@ -77,7 +80,7 @@ def start_screen():
                     screen = pygame.display.set_mode((800, 600))
                     width, height = 800, 600
                 background = pygame.transform.scale(background, (width, height))
-                start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_main()
+                start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
 
         screen.blit(background, (0, 0))
         try:
@@ -90,7 +93,7 @@ def start_screen():
                 width, height = SCREEN_SIZES[size_counter % 2]
                 screen = pygame.display.set_mode((width, height))
                 background = pygame.transform.scale(background, (width, height))
-                start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_main()
+                start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
                 if music_on[1] != music_on_local_flappy[0][1]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
 
@@ -103,7 +106,7 @@ def start_screen():
                 width, height = SCREEN_SIZES[size_counter % 2]
                 screen = pygame.display.set_mode((width, height))
                 background = pygame.transform.scale(background, (width, height))
-                start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_main()
+                start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
                 if music_on[1] != music_on_local_minesweeper[0][1]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
         except Exception as e:
@@ -122,7 +125,9 @@ def start_screen():
                 width, height = SCREEN_SIZES[size_counter % 2]
                 screen = pygame.display.set_mode((width, height))
                 background = pygame.transform.scale(background, (width, height))
-                start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_main()
+                start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
+
+        leaderboard_button.draw(leaderboard_button_coordinates, "Лидерборд", font_size=70, action=leaderboard.open_leaderboard, args=(pygame, SCREEN_SIZES[size_counter % 2]))
 
         pygame.display.flip()
         clock.tick(60)
