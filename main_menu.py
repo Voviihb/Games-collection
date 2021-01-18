@@ -21,6 +21,7 @@ SCREEN_SIZES_LETTERS = ["S", "B"]
 
 
 def resize_main():
+    """Перерасчет положения кнопок при изменении размера окна"""
     start_flappy_bird_coordinates = (200 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
     start_minesweeper_coordinates = (700 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
     quit_button_coordinates = (450 / BASEWIDTH) * width, (500 / BASEWIDTH) * width
@@ -36,6 +37,7 @@ def terminate():
 
 
 def start_screen():
+    """Стартовый экран(главное меню)"""
     global music_on, screen, size, width, height, BASEWIDTH, BASEWIDTH
 
     intro_text = ["СБОРНИК ИГР", "",
@@ -86,13 +88,14 @@ def start_screen():
         try:
             music_on_local_flappy = start_flappy_bird.draw(start_flappy_bird_coordinates, "Flappy bird",
                                                            action=flappy_bird.flappy_bird,
-                                                           font_size=70, args=(music_on, screen, size_counter))
+                                                           font_size=70, args=(music_on, size_counter))
             if music_on_local_flappy:
                 size_counter = music_on_local_flappy[1]
                 width, height = SCREEN_SIZES[size_counter % 2]
                 screen = pygame.display.set_mode((width, height))
                 background = pygame.transform.scale(background, (width, height))
                 start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
+                pygame.display.set_caption("Сборник игр: главное меню")
 
                 if music_on[2] != music_on_local_flappy[0][2]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
@@ -107,6 +110,7 @@ def start_screen():
                 screen = pygame.display.set_mode((width, height))
                 background = pygame.transform.scale(background, (width, height))
                 start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
+                pygame.display.set_caption("Сборник игр: главное меню")
                 if music_on[2] != music_on_local_minesweeper[0][2]:
                     music_on = music(music_on, pygame, sound_on, sound_off)
         except Exception as e:
@@ -119,6 +123,8 @@ def start_screen():
         sz_s = screen_size_button.draw(screen_size_button_coordinates, SCREEN_SIZES_LETTERS[size_counter % 2],
                                        action=pygame.display.set_mode,
                                        args=(SCREEN_SIZES[size_counter % 2],))
+
+        # обработка нажатия на кнопку изменения размера экрана
         if sz_s:
             if size_counter2 % 2 == 0:
                 size_counter += 1
@@ -127,7 +133,11 @@ def start_screen():
                 background = pygame.transform.scale(background, (width, height))
                 start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
 
-        leaderboard_button.draw(leaderboard_button_coordinates, "Лидерборд", font_size=70, action=leaderboard.open_leaderboard, args=(pygame, SCREEN_SIZES[size_counter % 2]))
+        lb = leaderboard_button.draw(leaderboard_button_coordinates, "Лидерборд", font_size=70,
+                                     action=leaderboard.open_leaderboard, args=(pygame, SCREEN_SIZES[size_counter % 2]))
+        # Если вернулись из лидерборда, то меняем название окна обратно
+        if lb:
+            pygame.display.set_caption("Сборник игр: главное меню")
 
         pygame.display.flip()
         clock.tick(60)

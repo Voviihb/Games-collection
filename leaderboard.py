@@ -2,7 +2,7 @@ import sqlite3
 import pygame
 import sys
 import datetime
-from scripts import load_image, print_text_from_center, to_main_menu_button, Button, music, play_again_button
+from scripts import load_image, print_text_from_center, Button
 
 
 class LeaderBoard:
@@ -214,6 +214,7 @@ class LeaderBoardWindow(LeaderBoard):
 def open_leaderboard(pygame, screen_size):
     board = LeaderBoardWindow(screen_size)
     board.StartRender()
+    return 1
 
 
 if __name__ == "__main__":
