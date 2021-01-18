@@ -20,9 +20,9 @@ SCREEN_SIZES_LETTERS = ["S", "B"]
 
 
 def resize_main():
-    start_flappy_bird_coordinates = (300 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
+    start_flappy_bird_coordinates = (200 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
     start_minesweeper_coordinates = (700 / BASEWIDTH) * width, (200 / BASEWIDTH) * width
-    quit_button_coordinates = (500 / BASEWIDTH) * width, (500 / BASEWIDTH) * width
+    quit_button_coordinates = (450 / BASEWIDTH) * width, (500 / BASEWIDTH) * width
     music_button_coordinates = (10 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
     screen_size_button_coordinates = (150 / BASEWIDTH) * width, (658 / BASEWIDTH) * width
     return start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates

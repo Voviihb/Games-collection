@@ -208,7 +208,7 @@ class LeaderBoardWindow(LeaderBoard):
                 names = [description[0] for description in cursor.description]
                 rows = len(self.records)
                 columns = len(self.records[0])
-                self.Board.SetValues(self.WIDTH - 80, min(rows * 20, 550), [names] + self.records, columns, rows)
+                self.Board.SetValues(self.WIDTH - 80, min((rows + 1) * 20, 550), [names] + self.records, columns, rows)
 
 
 if __name__ == "__main__":
