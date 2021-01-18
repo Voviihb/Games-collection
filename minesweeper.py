@@ -321,6 +321,7 @@ def minesweeper(music_on_imported, size_counter):
 
     while running:
         for event in pygame.event.get():
+            keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -334,6 +335,9 @@ def minesweeper(music_on_imported, size_counter):
                         board.mark_mine(event.pos)
                         if board.win():
                             board.lost = True
+            if keys[pygame.K_r]:
+                board.restart()
+
             elif event.type == pygame.VIDEORESIZE:
                 to_main_menu_local_coordinates, play_again_but_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_minesweeper()
 
@@ -388,7 +392,7 @@ def start_screen(screen, FPS):
                   "Если в ячейке указано число, оно показывает, ",
                   "сколько мин скрыто в восьми ячейках вокруг данной. ",
                   "Это число помогает понять, где находятся безопасные ячейки.",
-                  "Игра продолжается до тех пор, пока вы не откроете все не заминированные ячейки.",
+                  "Игра продолжается до тех пор, пока вы не откроете все не заминированные ячейки",
                   "И не отметите все мины флажком."
                   " ",
                   "Вам доступно 4 режима игры:",
@@ -448,6 +452,9 @@ def start_screen(screen, FPS):
 
 
 if __name__ == '__main__':
-    pygame.init()
-    pygame.display.set_caption('Сапер beta 0.2')
-    minesweeper((sound_on, (30, 683)), 2)
+    try:
+        pygame.init()
+        pygame.display.set_caption('Сапер')
+        minesweeper((sound_on, (30, 683)), 2)
+    except Exception as e:
+        print("Unknown Error. Write to developers.", e)
