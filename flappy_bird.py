@@ -13,6 +13,7 @@ bird_colour_list = ["red", "yellow", "blue"]
 pipe_colour_list = ["green", "red"]
 SCREEN_SIZES = [[1024, 768], [800, 600]]
 SCREEN_SIZES_LETTERS = ["S", "B"]
+kill_event = pygame.event.Event(pygame.KEYUP, key=pygame.K_r)
 
 
 def pause_logo(IF_PLAYING, play_button, pause_button):
@@ -192,12 +193,11 @@ class Bird(pygame.sprite.Sprite):
             global counter
             nick = os.environ.get("USERNAME")
             self.lb.AddRecord(nick, "datetime('now')", counter)
-            game_over(self.screen)
+            pygame.event.post(kill_event)
             print("Game over")
 
 
-def flappy_bird(music_on_imported, screen, size_counter):
-    print(size_counter)
+def flappy_bird(music_on_imported, screen, size_counter=1):
     global bird_sprite, floor_sprite, pipe_sprites, IF_PLAYING, RESTARTINGTICK, counter
     global width, height
     restart_skins()
@@ -271,6 +271,16 @@ def flappy_bird(music_on_imported, screen, size_counter):
                 b2.SetCoordinates(calc_x(70), height - calc_y(70), width - calc_x(70), height - calc_y(70))
                 b3.SetCoordinates(x5, y5, x5, height - y5)
                 b4.SetCoordinates(width - x5, y5, width - x5, height - y5)
+            elif pygame.key.get_pressed()[pygame.K_r] or event == kill_event:
+                RESTARTINGTICK = 0
+                IF_PLAYING = True
+                restart_skins()
+                pipe_sprites.update("kill")
+                bird_sprite.update("reset")
+                y = calc_y(random.randint(100, 300))
+                Pipe(y=y, place="bottom")
+                Pipe(y=y, place="top")
+                counter = 0
 
         pygame.display.update()
         screen.blit(background, (0, 0))
@@ -285,16 +295,7 @@ def flappy_bird(music_on_imported, screen, size_counter):
             IF_PLAYING = not IF_PLAYING
 
         if play_again_btn.draw(play_again_coordinates, image=restart_button, font_size=70, cmd="again"):
-            RESTARTINGTICK = 0
-            IF_PLAYING = True
-            counter = 0
-            restart_skins()
-            pipe_sprites.update("kill")
-            bird_sprite.update("reset")
-            y = calc_y(random.randint(100, 300))
-            Pipe(y=y, place="bottom")
-            Pipe(y=y, place="top")
-            print("restarted")
+            pygame.event.post(kill_event)
 
         if RESTARTINGTICK < 4000:
             print_text(f"{int(3999 - RESTARTINGTICK) // 1000}", width // 2, height // 2, screen=screen, pygame=pygame,
@@ -336,12 +337,13 @@ def flappy_bird(music_on_imported, screen, size_counter):
 
 
 def game_over(screen):
-    screen.blit("black", (0, 0))
-    while True:
-        pass
+    print(222)
+    #screen.blit("black", (0, 0))
+    # while True:
+    # pass
 
-        pygame.display.flip()
-        clock.tick(FPS)
+    # pygame.display.flip()
+    # clock.tick(FPS)
 
 
 if __name__ == '__main__':

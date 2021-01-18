@@ -94,8 +94,11 @@ def start_screen():
                 screen = pygame.display.set_mode((width, height))
                 background = pygame.transform.scale(background, (width, height))
                 start_flappy_bird_coordinates, start_minesweeper_coordinates, quit_button_coordinates, music_button_coordinates, screen_size_button_coordinates, leaderboard_button_coordinates = resize_main()
-                if music_on[1] != music_on_local_flappy[0][1]:
-                    music_on = music(music_on, pygame, sound_on, sound_off)
+                #if music_on[1] != music_on_local_flappy[0][1]:
+                    #music_on = music(music_on, pygame, sound_on, sound_off)
+                music_on = music_on_local_flappy[0]
+                music_on = music(music_on, pygame, sound_on, sound_off)
+                music_on = music(music_on, pygame, sound_on, sound_off)
 
             music_on_local_minesweeper = start_minesweeper.draw(start_minesweeper_coordinates, "Сапер",
                                                                 action=minesweeper.minesweeper, font_size=70,
