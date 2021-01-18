@@ -47,6 +47,7 @@ def calc_y(value: int) -> int:
     return int((value / BASEHEIGHT) * height)
 
 
+# Class Tile - класс тайлов(картинок) для сапера. Загружает изображения на доску
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y, tile_size):
         super().__init__(tiles_group, all_sprites)
@@ -59,6 +60,7 @@ class Tile(pygame.sprite.Sprite):
         self.kill()
 
 
+# Базовый класс доски. Является родительским для класса игры сапер
 class Board:
     # создание поля
     def __init__(self, width, height):
@@ -89,20 +91,25 @@ class Board:
                 cur_x += self.cell_size
             cur_y += self.cell_size
 
+    # Функция получения координат клетки по щелчку мыши
     def get_cell(self, pos):
-        if self.left < pos[0] < self.size_x and self.top < pos[1] < self.size_y:
-            num_x = (pos[0] - self.left) // self.cell_size
-            num_y = (pos[1] - self.top) // self.cell_size
-            id = (num_x, num_y)
-            return id
-        else:
-            return None
+        try:
+            if self.left < pos[0] < self.size_x and self.top < pos[1] < self.size_y:
+                num_x = (pos[0] - self.left) // self.cell_size
+                num_y = (pos[1] - self.top) // self.cell_size
+                id = (num_x, num_y)
+                return id
+            else:
+                return None
+        except Exception as e:
+            print("Unknown Error. Write to developers.", e)
 
     def get_click(self, mouse_pos):
         cell = self.get_cell(mouse_pos)
         # self.on_click(cell)
 
 
+# Основной класс игры сапер
 class Minesweeper(Board):
     def __init__(self, mode=2, width=16, height=16, mines_count=40):
         super().__init__(width, height)
@@ -111,8 +118,11 @@ class Minesweeper(Board):
                                "Mode": str})
         self.lost = False
         self.not_win = True
+        self.warning = False
         self.cheat_mode = False
+        # cheat_mode позволяет смотреть расположение мин. Удобно для тестирования и обучения игре в сапер
         self.mode = mode
+        # установка режима игры. Параметр mode устанавливает пользователь при запуске, на стартовом экране
         if self.mode == 2:
             self.width = width
             self.height = height
@@ -137,6 +147,7 @@ class Minesweeper(Board):
         self.tagged_mines = 0
         self.board = [[-1] * width for _ in range(height)]
 
+        # Генерация мин. Ищет местоположение для мин, пока не установит все
         i = 0
         while i < self.mines_count:
             x = randrange(self.width)
@@ -156,6 +167,14 @@ class Minesweeper(Board):
         all_sprites.update()
         self.place = place
         cur_y = self.top
+        if self.win():
+            render_text(self.place, pygame, self.size_x + 30, 150, f"You win!",
+                        scale=30,
+                        colour=(0, 255, 0))
+        if self.tagged_mines == self.mines_count and not self.win():
+            render_text(self.place, pygame, self.size_x + 30, 150, f"Not all the mines have been marked",
+                        scale=30,
+                        colour=(0, 255, 0))
         if not self.lost:
             e = int(time.time() - start_time)
 
@@ -214,10 +233,14 @@ class Minesweeper(Board):
         return False
 
     def get_click(self, mouse_pos):
-        cell = self.get_cell(mouse_pos)
-        if cell:
-            self.open_cell(cell)
+        try:
+            cell = self.get_cell(mouse_pos)
+            if cell:
+                self.open_cell(cell)
+        except Exception as e:
+            print("Unknown Error. Write to developers.", e)
 
+    # Функция для отмети мин(или не мин, если игрок ошибся). Есть возможность снять отметку мины
     def mark_mine(self, mouse_pos):
         cell = self.get_cell(mouse_pos)
         if cell:
@@ -241,6 +264,7 @@ class Minesweeper(Board):
             self.result_left_mines = self.mines_count - self.tagged_mines
             print("YOU LOST")
 
+        # Алгоритм для автоматического открытия "безопастных" клеток
         if self.board[y][x] == -1:
             for y_edge in range(-1, 2):
                 for x_edge in range(-1, 2):
@@ -265,6 +289,7 @@ class Minesweeper(Board):
                     if self.board[y + y_edge][x + x_edge] == -1:
                         self.open_cell((x + x_edge, y + y_edge))
 
+    # Функция - обработчик победы
     def win(self):
         self.counter = 0
         if self.tagged_mines == self.mines_count:
@@ -274,7 +299,8 @@ class Minesweeper(Board):
                         self.counter += 1
 
             if self.counter != self.mines_count:
-                print("Not all the mines have been marked")
+                self.warning = True
+                # print("Not all the mines have been marked")
 
             else:
                 print("You win!")
@@ -283,14 +309,15 @@ class Minesweeper(Board):
                 self.result_left_mines = self.mines_count - self.tagged_mines
                 nick = os.environ.get("USERNAME")
                 time_in_seconds = e
-                date = datetime.datetime.now()
                 game_mode = self.mode
-                self.lb.AddRecord(nick, f"time('{time_in_seconds}', 'unixepoch')", "datetime('now', '+3 hours')", game_mode)
+                self.lb.AddRecord(nick, f"time('{time_in_seconds}', 'unixepoch')", "datetime('now', '+3 hours')",
+                                  game_mode)
                 # print(nick, time_in_seconds, date, game_mode, sep="\n")
                 return True
         return False
 
 
+# Функция для запуска игры. Используется в главном меню
 def minesweeper(music_on_imported, size_counter):
     global width, height, start_time
 
@@ -379,6 +406,7 @@ def terminate():
     sys.exit()
 
 
+# Функция для показа приветсвенного экрана. Содержит инструкцию для игры. Ждет выбора режима игры от пользователя
 def start_screen(screen, FPS):
     intro_text = ["Правила игры",
                   "Число в ячейке показывает, сколько мин скрыто вокруг данной ячейки. ",
