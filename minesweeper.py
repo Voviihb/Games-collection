@@ -167,11 +167,11 @@ class Minesweeper(Board):
         all_sprites.update()
         self.place = place
         cur_y = self.top
-        if self.win():
+        if not self.not_win:
             render_text(self.place, pygame, self.size_x + 30, 150, f"You win!",
                         scale=30,
                         colour=(0, 255, 0))
-        if self.tagged_mines == self.mines_count and not self.win():
+        if self.tagged_mines == self.mines_count and self.not_win:
             render_text(self.place, pygame, self.size_x + 30, 150, f"Not all the mines have been marked",
                         scale=30,
                         colour=(0, 255, 0))
@@ -303,10 +303,11 @@ class Minesweeper(Board):
                 # print("Not all the mines have been marked")
 
             else:
-                print("You win!")
+                # print("You win!")
                 e = int(time.time() - start_time)
                 self.total_time = '{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)
                 self.result_left_mines = self.mines_count - self.tagged_mines
+                self.not_win = False
                 nick = os.environ.get("USERNAME")
                 time_in_seconds = e
                 game_mode = self.mode
@@ -483,6 +484,6 @@ if __name__ == '__main__':
     try:
         pygame.init()
         pygame.display.set_caption('Сапер')
-        minesweeper((sound_on, (30, 683)), 2)
+        minesweeper((sound_on, (30, 683), True), 2)
     except Exception as e:
         print("Unknown Error. Write to developers.", e)
