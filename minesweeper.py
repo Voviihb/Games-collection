@@ -308,7 +308,10 @@ class Minesweeper(Board):
                 self.total_time = '{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60)
                 self.result_left_mines = self.mines_count - self.tagged_mines
                 self.not_win = False
-                nick = os.environ.get("USERNAME")
+                if os.name == "posix":
+                    nick = os.environ.get("USER")
+                else:
+                    nick = os.environ.get("USERNAME")
                 time_in_seconds = e
                 game_mode = self.mode
                 self.lb.AddRecord(nick, f"time('{time_in_seconds}', 'unixepoch')", "datetime('now', '+3 hours')",

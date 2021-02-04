@@ -197,7 +197,10 @@ class Bird(pygame.sprite.Sprite):
 
         if pygame.sprite.spritecollideany(self, floor_sprite) or pygame.sprite.spritecollideany(self, pipe_sprites):
             global counter
-            nick = os.environ.get("USERNAME")
+            if os.name == "posix":
+                nick = os.environ.get("USER")
+            else:
+                nick = os.environ.get("USERNAME")
             self.lb.AddRecord(nick, "datetime('now', '+3 hours')", counter)
             pygame.event.post(kill_event)
             print("Game over")
