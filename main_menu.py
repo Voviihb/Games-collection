@@ -118,7 +118,7 @@ def start_screen():
 
         quit_button.draw(quit_button_coordinates, "Выход", action=terminate, font_size=70)
         music_on = music_button.draw(music_button_coordinates, image=music_on[0], action=music, font_size=70,
-                                     args=(music_on, pygame, sound_on, sound_off)) or music_on
+                                     cmd=True, args=(music_on, pygame, sound_on, sound_off)) or music_on
 
         sz_s = screen_size_button.draw(screen_size_button_coordinates, SCREEN_SIZES_LETTERS[size_counter % 2],
                                        action=pygame.display.set_mode,

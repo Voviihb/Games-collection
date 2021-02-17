@@ -382,8 +382,9 @@ def minesweeper(music_on_imported, size_counter):
         if play_again_but.draw(play_again_but_coordinates, image=restart_button, font_size=70, cmd="again"):
             board.restart()
 
-        a = music_button.draw(music_button_coordinates, "", action=music, font_size=70,
-                              args=(music_on, pygame, sound_on, sound_off, (calc_x(910), calc_y(506))))
+        music_on = music_button.draw(music_button_coordinates, "", action=music, font_size=70,
+                                     args=(
+                                     music_on, pygame, sound_on, sound_off, (calc_x(910), calc_y(506)))) or music_on
 
         sz_s = screen_size_button.draw(screen_size_button_coordinates, SCREEN_SIZES_LETTERS[size_counter % 2],
                                        action=pygame.display.set_mode,
@@ -395,9 +396,6 @@ def minesweeper(music_on_imported, size_counter):
             music_on = music(music_on, pygame, sound_on, sound_off, (calc_x(910), calc_y(506)))
             music_on = music(music_on, pygame, sound_on, sound_off, (calc_x(910), calc_y(506)))
             to_main_menu_local_coordinates, play_again_but_coordinates, music_button_coordinates, screen_size_button_coordinates = resize_minesweeper()
-
-        if a:
-            music_on = a
         screen.blit(*music_on[:2])
 
         pygame.display.flip()

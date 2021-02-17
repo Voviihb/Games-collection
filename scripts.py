@@ -111,14 +111,22 @@ class Button:
                 self.pygame.mixer.Sound.play(self.btn_sound)
                 self.pygame.time.delay(50)
                 if action:
+                    if cmd and not self.last_ret:
+                        self.last_ret = cmd
+                    elif self.last_ret:
+                        return False
                     if args:
                         if len(args) == 1:
-                            return action(args[0])
+                            self.last_ret = action(args[0])
                         else:
-                            return action(*args)
+                            self.last_ret = action(*args)
+                        ret = self.last_ret
+                        if not cmd:
+                            self.last_ret = False
+                        return ret
                     else:
                         action()
-                if cmd and not self.last_ret:
+                elif cmd and not self.last_ret:
                     self.last_ret = cmd
                     return cmd
                 return False
