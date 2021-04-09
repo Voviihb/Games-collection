@@ -116,7 +116,7 @@ class Pipe(pygame.sprite.Sprite):
         global counter
         if self.rect[0] < 0 or arg == "kill":
             self.kill()
-        if self.rect[0] == calc_x(100) and self.place == "top":
+        if calc_x(95) < self.rect[0] < calc_x(105) and self.place == "top":
             counter += 1
         elif self.rect[0] <= calc_x(400) and self.place == "top" and not self.generated:
             self.generated = True
