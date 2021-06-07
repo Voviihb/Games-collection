@@ -159,3 +159,5 @@ def music(music_on, pygame, sound_on, sound_off, coords=(30, 682), redraw=False)
     else:
         pygame.mixer.music.stop()
         return sound_off, (coords[0], coords[1] + 1), False
+
+
